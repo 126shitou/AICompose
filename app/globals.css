@@ -94,9 +94,19 @@
   }
   
   .light-theme-card {
-    background: rgba(255, 255, 255, 0.8);
+    /* 亮色模式下的优雅卡片设计 */
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  }
+  
+  /* 暗色模式下保持原有样式 */
+  .dark .light-theme-card {
+    background: rgba(0, 0, 0, 0.2);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(0, 247, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: none;
   }
   
   .light-theme-text-gradient {
@@ -109,5 +119,37 @@
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
+  }
+
+  /* 优化主题切换时的过渡效果 */
+  .theme-transition-optimize {
+    transition: background-color 150ms ease-in-out, color 150ms ease-in-out, border-color 150ms ease-in-out;
+  }
+  
+  /* 亮色模式下的输入框和选择器样式 */
+  .light [class*="bg-background/50"] {
+    background-color: rgba(255, 255, 255, 0.7) !important;
+  }
+  
+  .light [class*="border-border"] {
+    border-color: rgba(0, 0, 0, 0.12) !important;
+  }
+  
+  /* 亮色模式下的hover效果 */
+  .light [class*="hover:bg-accent"]:hover {
+    background-color: rgba(0, 0, 0, 0.04) !important;
+  }
+  
+  /* 亮色模式下的视频控制区域 */
+  .light [class*="bg-muted/60"] {
+    background-color: rgba(0, 0, 0, 0.06) !important;
+  }
+  
+  .light [class*="bg-muted/30"] {
+    background-color: rgba(0, 0, 0, 0.04) !important;
+  }
+  
+  .light [class*="bg-muted"]:not([class*="/"]) {
+    background-color: rgba(0, 0, 0, 0.03) !important;
   }
 }

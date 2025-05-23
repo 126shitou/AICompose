@@ -106,7 +106,7 @@ export default function ChatPage() {
   const pinnedMessages = messages.filter(msg => msg.isPinned);
 
   return (
-    <div className="min-h-[calc(100vh-80px)] flex flex-col">
+    <div className="min-h-[calc(100vh-120px)] flex flex-col">
       <h1 className="text-3xl font-bold mb-4">{t('chat.title', 'AI Assistant')}</h1>
       
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 flex-grow mb-6">

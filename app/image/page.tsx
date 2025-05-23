@@ -31,7 +31,7 @@ import { cn } from '@/lib/utils';
 
 interface ImageParams {
   prompt: string;
-  aspect_ratio: string;
+  aspect_ratio: keyof typeof aspectRatioOptions;
   num_outputs: number;
   num_inference_steps: number;
   seed: number;
@@ -39,6 +39,14 @@ interface ImageParams {
   output_quality: number;
   megapixels: number;
 }
+
+const aspectRatioOptions = {
+  '1:1': { width: 512, height: 512, label: '1:1 Square' },
+  '16:9': { width: 682, height: 384, label: '16:9 Landscape' },
+  '9:16': { width: 384, height: 682, label: '9:16 Portrait' },
+  '4:3': { width: 590, height: 442, label: '4:3 Classic' },
+  '3:4': { width: 442, height: 590, label: '3:4 Portrait' }
+} as const;
 
 export default function ImagePage() {
   const { t } = useTranslation();
@@ -60,14 +68,6 @@ export default function ImagePage() {
   const generateButtonRef = useRef<HTMLButtonElement>(null);
   const longPressTimer = useRef<NodeJS.Timeout | null>(null);
   
-  const aspectRatioOptions = {
-    '1:1': { width: 512, height: 512, label: '1:1 Square' },
-    '16:9': { width: 682, height: 384, label: '16:9 Landscape' },
-    '9:16': { width: 384, height: 682, label: '9:16 Portrait' },
-    '4:3': { width: 590, height: 442, label: '4:3 Classic' },
-    '3:4': { width: 442, height: 590, label: '3:4 Portrait' }
-  };
-
   useEffect(() => {
     if (isGenerating) {
       const interval = setInterval(() => {
@@ -84,7 +84,8 @@ export default function ImagePage() {
               setGeneratedImages(newImages);
               setRecentSeeds(prev => {
                 const updated = [params.seed, ...prev].slice(0, 10);
-                return [...new Set(updated)];
+                const uniqueSeeds = [...new Set(updated)] as number[];
+                return uniqueSeeds;
               });
             }, 500);
             return 100;
@@ -141,11 +142,11 @@ export default function ImagePage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-80px)]">
+    <div className="min-h-[calc(100vh-120px)]">
       <h1 className="text-3xl font-bold mb-4">{t('image.title', 'Image Generation')}</h1>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="col-span-1 lg:col-span-2 p-6 border-white/10 bg-black/20 backdrop-blur-sm">
+        <Card className="col-span-1 lg:col-span-2 p-6 light-theme-card dark:border-white/10 dark:bg-black/20 backdrop-blur-sm">
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">
               {t('image.prompt', 'Prompt')}
@@ -154,7 +155,7 @@ export default function ImagePage() {
               placeholder={t('image.promptPlaceholder', 'Describe the image you want to generate...')}
               value={params.prompt}
               onChange={(e) => setParams({ ...params, prompt: e.target.value })}
-              className="h-20 bg-black/20 border-white/20 focus-visible:ring-[#FF2D7C]"
+              className="h-20 bg-background/50 dark:bg-black/20 border-border dark:border-white/20 focus-visible:ring-[#FF2D7C]"
             />
           </div>
           
@@ -165,9 +166,9 @@ export default function ImagePage() {
               </label>
               <Select 
                 value={params.aspect_ratio} 
-                onValueChange={(value) => setParams({ ...params, aspect_ratio: value })}
+                onValueChange={(value) => setParams({ ...params, aspect_ratio: value as keyof typeof aspectRatioOptions })}
               >
-                <SelectTrigger className="bg-black/20 border-white/20">
+                <SelectTrigger className="bg-background/50 dark:bg-black/20 border-border dark:border-white/20">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -222,10 +223,10 @@ export default function ImagePage() {
                   type="number"
                   value={params.seed}
                   onChange={(e) => setParams({ ...params, seed: parseInt(e.target.value) || 0 })}
-                  className="bg-black/20 border-white/20 focus-visible:ring-[#FF2D7C]"
+                  className="bg-background/50 dark:bg-black/20 border-border dark:border-white/20 focus-visible:ring-[#FF2D7C]"
                 />
                 <Tabs defaultValue="recent" className="w-32">
-                  <TabsList className="h-9 bg-black/20">
+                  <TabsList className="h-9 bg-background/50 dark:bg-black/20">
                     <TabsTrigger value="recent" className="text-xs h-7">
                       <History className="h-3 w-3 mr-1" />
                     </TabsTrigger>
@@ -233,14 +234,14 @@ export default function ImagePage() {
                       <Star className="h-3 w-3 mr-1" />
                     </TabsTrigger>
                   </TabsList>
-                  <TabsContent value="recent" className="absolute mt-1 w-32 bg-black/80 backdrop-blur-md rounded-md border border-white/10 p-1 z-10">
+                  <TabsContent value="recent" className="absolute mt-1 w-32 bg-popover dark:bg-black/80 backdrop-blur-md rounded-md border border-border dark:border-white/10 p-1 z-10">
                     <div className="grid grid-cols-2 gap-1">
                       {recentSeeds.length > 0 ? (
                         recentSeeds.map((seed) => (
                           <Badge 
                             key={seed}
                             variant="outline"
-                            className="justify-center cursor-pointer hover:bg-white/10"
+                            className="justify-center cursor-pointer hover:bg-accent dark:hover:bg-white/10"
                             onClick={() => setParams({ ...params, seed })}
                           >
                             {seed}
@@ -253,7 +254,7 @@ export default function ImagePage() {
                       )}
                     </div>
                   </TabsContent>
-                  <TabsContent value="favorites" className="absolute mt-1 w-32 bg-black/80 backdrop-blur-md rounded-md border border-white/10 p-1 z-10">
+                  <TabsContent value="favorites" className="absolute mt-1 w-32 bg-popover dark:bg-black/80 backdrop-blur-md rounded-md border border-border dark:border-white/10 p-1 z-10">
                     <div className="text-center text-xs text-muted-foreground py-2">
                       {t('image.noFavorites', 'No favorites yet')}
                     </div>
@@ -270,7 +271,7 @@ export default function ImagePage() {
                 value={params.output_format} 
                 onValueChange={(value) => setParams({ ...params, output_format: value })}
               >
-                <SelectTrigger className="bg-black/20 border-white/20">
+                <SelectTrigger className="bg-background/50 dark:bg-black/20 border-border dark:border-white/20">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -349,7 +350,7 @@ export default function ImagePage() {
                     <img 
                       src={image} 
                       alt={`Generated image ${index + 1}`}
-                      className="w-full rounded-lg object-cover border border-white/10"
+                      className="w-full rounded-lg object-cover border border-border dark:border-white/10"
                       style={{
                         aspectRatio: params.aspect_ratio.replace(':', '/'),
                       }}
@@ -380,14 +381,14 @@ export default function ImagePage() {
           )}
         </Card>
         
-        <Card className="col-span-1 p-6 border-white/10 bg-black/20 backdrop-blur-sm flex flex-col">
+        <Card className="col-span-1 p-6 light-theme-card dark:border-white/10 dark:bg-black/20 backdrop-blur-sm flex flex-col">
           <h2 className="text-xl font-semibold mb-4">{t('image.preview', 'Canvas Preview')}</h2>
           
           <div className="flex-grow flex flex-col items-center justify-center">
             {params.prompt ? (
               <div 
                 className={cn(
-                  "relative border-2 border-dashed border-white/20 rounded-lg flex items-center justify-center bg-black/30",
+                  "relative border-2 border-dashed border-border dark:border-white/20 rounded-lg flex items-center justify-center bg-muted/30 dark:bg-black/30",
                   isGenerating && "animate-pulse"
                 )}
                 style={{
@@ -404,14 +405,14 @@ export default function ImagePage() {
                   />
                 ) : (
                   <div className="text-center p-4">
-                    <ImagePlus className="h-10 w-10 text-white/30 mx-auto mb-2" />
-                    <p className="text-sm text-white/60">
+                    <ImagePlus className="h-10 w-10 text-muted-foreground dark:text-white/30 mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground dark:text-white/60">
                       {isGenerating 
                         ? t('image.creating', 'Creating your image...') 
                         : t('image.readyToGenerate', 'Canvas ready')}
                     </p>
                     {isGenerating && (
-                      <div className="mt-3 w-full bg-white/10 rounded-full h-1">
+                      <div className="mt-3 w-full bg-muted dark:bg-white/10 rounded-full h-1">
                         <div 
                           className="bg-[#FF2D7C] h-1 rounded-full transition-all" 
                           style={{ width: `${progress}%` }} 

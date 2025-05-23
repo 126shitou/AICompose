@@ -76,11 +76,11 @@ export default function VideoPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-80px)]">
+    <div className="min-h-[calc(100vh-120px)]">
       <h1 className="text-3xl font-bold mb-4">{t('video.title', 'Video Generation')}</h1>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="col-span-1 lg:col-span-2 p-6 border-white/10 bg-black/20 backdrop-blur-sm">
+        <Card className="col-span-1 lg:col-span-2 p-6 light-theme-card dark:border-white/10 dark:bg-black/20 backdrop-blur-sm">
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1">
               {t('video.prompt', 'Prompt')}
@@ -89,7 +89,7 @@ export default function VideoPage() {
               placeholder={t('video.promptPlaceholder', 'Describe the video you want to generate...')}
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              className="h-20 bg-black/20 border-white/20 focus-visible:ring-[#00FF88]"
+              className="h-20 bg-background/50 dark:bg-black/20 border-border dark:border-white/20 focus-visible:ring-[#00FF88]"
             />
           </div>
           
@@ -116,7 +116,7 @@ export default function VideoPage() {
                 value={quality} 
                 onValueChange={setQuality}
               >
-                <SelectTrigger className="bg-black/20 border-white/20">
+                <SelectTrigger className="bg-background/50 dark:bg-black/20 border-border dark:border-white/20">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -137,7 +137,7 @@ export default function VideoPage() {
           <div className="flex flex-wrap gap-3 mb-6">
             <Button 
               variant="outline" 
-              className="border-white/20 hover:bg-white/5"
+              className="border-border dark:border-white/20 hover:bg-accent dark:hover:bg-white/5"
             >
               <Upload className="h-4 w-4 mr-2" />
               {t('video.uploadImage', 'Upload Reference Image')}
@@ -145,7 +145,7 @@ export default function VideoPage() {
             
             <Button 
               variant="outline" 
-              className="border-white/20 hover:bg-white/5"
+              className="border-border dark:border-white/20 hover:bg-accent dark:hover:bg-white/5"
             >
               <Clock className="h-4 w-4 mr-2" />
               {t('video.history', 'Recent Prompts')}
@@ -189,7 +189,7 @@ export default function VideoPage() {
           {generatedVideo && (
             <div className="mt-8">
               <h3 className="text-lg font-medium mb-3">{t('video.result', 'Generated Video')}</h3>
-              <div className="rounded-lg overflow-hidden border border-white/10 bg-black">
+              <div className="rounded-lg overflow-hidden border border-border dark:border-white/10 bg-muted dark:bg-black">
                 <video 
                   id="generated-video"
                   src={generatedVideo}
@@ -201,11 +201,11 @@ export default function VideoPage() {
                   poster="https://images.pexels.com/photos/5011647/pexels-photo-5011647.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
                 />
                 
-                <div className="p-3 bg-black/60 flex justify-between items-center">
+                <div className="p-3 bg-muted/60 dark:bg-black/60 flex justify-between items-center">
                   <Button 
                     variant="ghost" 
                     size="sm" 
-                    className="text-white hover:bg-white/10"
+                    className="text-foreground dark:text-white hover:bg-accent/50 dark:hover:bg-white/10"
                     onClick={handlePlayPause}
                   >
                     {isPlaying ? (
@@ -220,7 +220,7 @@ export default function VideoPage() {
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      className="text-white hover:bg-white/10"
+                      className="text-foreground dark:text-white hover:bg-accent/50 dark:hover:bg-white/10"
                     >
                       <Film className="h-4 w-4 mr-1" />
                       {t('video.saveToGallery', 'Save')}
@@ -243,7 +243,7 @@ export default function VideoPage() {
           )}
         </Card>
         
-        <Card className="col-span-1 p-6 border-white/10 bg-black/20 backdrop-blur-sm">
+        <Card className="col-span-1 p-6 light-theme-card dark:border-white/10 dark:bg-black/20 backdrop-blur-sm">
           <h2 className="text-xl font-semibold mb-4">{t('video.tips', 'Tips & Examples')}</h2>
           
           <div className="space-y-6">
@@ -276,7 +276,7 @@ export default function VideoPage() {
                   <Button
                     key={index}
                     variant="outline"
-                    className="w-full justify-start text-left h-auto py-2 border-white/10 hover:bg-white/5"
+                    className="w-full justify-start text-left h-auto py-2 border-border dark:border-white/10 hover:bg-accent dark:hover:bg-white/5"
                     onClick={() => setPrompt(example)}
                   >
                     <Video className="h-3.5 w-3.5 mr-2 shrink-0 text-[#00FF88]" />
@@ -287,7 +287,7 @@ export default function VideoPage() {
             </div>
             
             <div className="text-sm text-muted-foreground">
-              <p className="mb-2 font-medium text-white">{t('video.note', 'Note:')}</p>
+              <p className="mb-2 font-medium text-foreground dark:text-white">{t('video.note', 'Note:')}</p>
               <p>{t('video.noteContent', 'Longer videos and higher quality settings will consume more credits but produce better results.')}</p>
             </div>
           </div>
