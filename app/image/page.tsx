@@ -1,14 +1,12 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { motion } from '@/lib/motion-mock';
 import { useTranslation } from '@/hooks/use-translation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
-import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -16,8 +14,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
+ import {
   Download,
   CopyPlus,
   Sparkles,
@@ -65,6 +62,7 @@ export default function ImagePage() {
   const [progress, setProgress] = useState(0);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [recentSeeds, setRecentSeeds] = useState<number[]>([]);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
   const generateButtonRef = useRef<HTMLButtonElement>(null);
   const longPressTimer = useRef<NodeJS.Timeout | null>(null);
 
@@ -132,19 +130,26 @@ export default function ImagePage() {
     }
   };
 
-  const downloadImage = (url: string, index: number) => {
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `image-${params.seed}-${index}.${params.output_format}`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+  const downloadImage = async (url: string, index: number) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = `image-${params.seed}-${index}.${params.output_format}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error('Error downloading image:', error);
+      alert('Failed to download image. Please try again.');
+    }
   };
 
   return (
     <div className="min-h-[calc(100vh-120px)]">
-      <h1 className="text-3xl font-bold mb-4">{t('image.title', 'Image Generation')}</h1>
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="col-span-1 lg:col-span-2 p-6 light-theme-card dark:border-white/10 dark:bg-black/20 backdrop-blur-sm">
           <div className="mb-4">
@@ -300,51 +305,6 @@ export default function ImagePage() {
               </span>
             </Button>
           </div>
-
-          {isGenerating && (
-            <div className="mt-4 text-center text-sm text-muted-foreground">
-              <p>{t('image.holdToCancel', 'Hold the Generate button to cancel')}</p>
-            </div>
-          )}
-
-          {generatedImages.length > 0 && (
-            <div className="mt-8">
-              <h3 className="text-lg font-medium mb-3">{t('image.results', 'Generated Images')}</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4">
-                {generatedImages.map((image, index) => (
-                  <div key={index} className="relative group">
-                    <img
-                      src={image}
-                      alt={`Generated image ${index + 1}`}
-                      className="w-full rounded-lg object-cover border border-[#FF2D7C]/20 dark:border-[#FF2D7C]/30"
-                      style={{
-                        aspectRatio: params.aspect_ratio.replace(':', '/'),
-                      }}
-                    />
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-3">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="border-white text-white hover:bg-white/20"
-                        onClick={() => downloadImage(image, index)}
-                      >
-                        <Download className="h-4 w-4 mr-1" />
-                        {t('image.download', 'Download')}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="border-white text-white hover:bg-white/20"
-                      >
-                        <CopyPlus className="h-4 w-4 mr-1" />
-                        {t('image.variations', 'Variations')}
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </Card>
 
         <Card className="col-span-1 p-6 light-theme-card dark:border-white/10 dark:bg-black/20 backdrop-blur-sm flex flex-col">
@@ -365,8 +325,8 @@ export default function ImagePage() {
               >
                 {generatedImages.length > 0 ? (
                   <img
-                    src={generatedImages[0]}
-                    alt="Latest generated image"
+                    src={generatedImages[selectedImageIndex] || generatedImages[0]}
+                    alt="Selected generated image"
                     className="w-full h-full object-cover rounded-lg"
                   />
                 ) : (
@@ -401,27 +361,84 @@ export default function ImagePage() {
             )}
           </div>
 
-          <div className="mt-6 space-y-4">
-            <div>
-              <h3 className="text-md font-medium mb-2">{t('image.promptTips', 'Prompt Tips')}</h3>
-              <ul className="text-sm space-y-2 text-muted-foreground">
-                <li className="flex items-start">
-                  <span className="bg-[#FF2D7C]/20 text-[#FF2D7C] rounded-full w-5 h-5 flex items-center justify-center mr-2 shrink-0">1</span>
-                  {t('image.tip1', 'Be specific about subject, style, lighting, and mood')}
-                </li>
-                <li className="flex items-start">
-                  <span className="bg-[#FF2D7C]/20 text-[#FF2D7C] rounded-full w-5 h-5 flex items-center justify-center mr-2 shrink-0">2</span>
-                  {t('image.tip2', 'Include artist references for particular styles')}
-                </li>
-                <li className="flex items-start">
-                  <span className="bg-[#FF2D7C]/20 text-[#FF2D7C] rounded-full w-5 h-5 flex items-center justify-center mr-2 shrink-0">3</span>
-                  {t('image.tip3', 'Higher step count improves detail but uses more credits')}
-                </li>
-              </ul>
+          {/* Image Selection Grid */}
+          {generatedImages.length > 0 && (
+            <div className="mt-4">
+              <h3 className="text-sm font-medium mb-2">{t('image.selectImage', 'Select Image')}</h3>
+              <div className="grid grid-cols-2 gap-2">
+                {generatedImages.map((image, index) => (
+                  <div
+                    key={index}
+                    className={cn(
+                      "relative group cursor-pointer rounded-lg overflow-hidden border-2 transition-all",
+                      selectedImageIndex === index
+                        ? "border-[#FF2D7C] shadow-lg"
+                        : "border-[#FF2D7C]/20 hover:border-[#FF2D7C]/40"
+                    )}
+                    onClick={() => setSelectedImageIndex(index)}
+                  >
+                    <img
+                      src={image}
+                      alt={`Generated image ${index + 1}`}
+                      className="w-full h-16 object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <span className="text-white text-xs font-medium">          
+                        {selectedImageIndex === index ? '✓' : index + 1}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+      
+        </Card>
+      </div>
+
+      {/* Single Image Display Area */}
+      {generatedImages.length > 0 && (
+        <Card className="mt-6 p-6 light-theme-card dark:border-white/10 dark:bg-black/20 backdrop-blur-sm">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-semibold">{t('image.selectedImage', 'Selected Image')}</h3>
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-muted-foreground">
+                {selectedImageIndex + 1} of {generatedImages.length}
+              </span>
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-[#FF2D7C]/40 text-[#FF2D7C] hover:bg-[#FF2D7C]/10"
+                onClick={() => downloadImage(generatedImages[selectedImageIndex], selectedImageIndex)}
+              >
+                <Download className="h-4 w-4 mr-1" />
+                {t('image.download', 'Download')}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-[#FF2D7C]/40 text-[#FF2D7C] hover:bg-[#FF2D7C]/10"
+              >
+                <CopyPlus className="h-4 w-4 mr-1" />
+                {t('image.variations', 'Variations')}
+              </Button>
+            </div>
+          </div>
+          <div className="flex justify-center">
+            <div className="relative max-w-2xl">
+              <img
+                src={generatedImages[selectedImageIndex]}
+                alt={`Selected image ${selectedImageIndex + 1}`}
+                className="w-full rounded-lg border border-[#FF2D7C]/20 dark:border-[#FF2D7C]/30 shadow-lg"
+                style={{
+                  aspectRatio: params.aspect_ratio.replace(':', '/'),
+                }}
+              />
             </div>
           </div>
         </Card>
-      </div>
+      )}
     </div>
   );
 }
