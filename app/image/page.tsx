@@ -155,7 +155,7 @@ export default function ImagePage() {
               placeholder={t('image.promptPlaceholder', 'Describe the image you want to generate...')}
               value={params.prompt}
               onChange={(e) => setParams({ ...params, prompt: e.target.value })}
-              className="h-20 bg-background/50 dark:bg-black/20 border-border dark:border-white/20 focus-visible:ring-[#FF2D7C]"
+              className="h-20 bg-background/50 dark:bg-black/20 border-[#FF2D7C]/20 dark:border-[#FF2D7C]/30 focus-visible:ring-[#FF2D7C] focus-visible:border-[#FF2D7C]/30"
             />
           </div>
 
@@ -168,7 +168,7 @@ export default function ImagePage() {
                 value={params.aspect_ratio}
                 onValueChange={(value) => setParams({ ...params, aspect_ratio: value as keyof typeof aspectRatioOptions })}
               >
-                <SelectTrigger className="bg-background/50 dark:bg-black/20 border-border dark:border-white/20">
+                <SelectTrigger className="bg-background/50 dark:bg-black/20 border-[#FF2D7C]/20 dark:border-[#FF2D7C]/30 focus:border-[#FF2D7C]/50">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -189,7 +189,7 @@ export default function ImagePage() {
                 max={4}
                 step={1}
                 onValueChange={(value) => setParams({ ...params, num_outputs: value[0] })}
-                className="py-2"
+                className="py-2 "
               />
             </div>
 
@@ -223,43 +223,9 @@ export default function ImagePage() {
                   type="number"
                   value={params.seed}
                   onChange={(e) => setParams({ ...params, seed: parseInt(e.target.value) || 0 })}
-                  className="bg-background/50 dark:bg-black/20 border-border dark:border-white/20 focus-visible:ring-[#FF2D7C]"
+                  className="bg-background/50 dark:bg-black/20 border-[#FF2D7C]/20 dark:border-[#FF2D7C]/30 focus-visible:ring-[#FF2D7C] focus-visible:border-[#FF2D7C]/30"
                 />
-                <Tabs defaultValue="recent" className="w-32">
-                  <TabsList className="h-9 bg-background/50 dark:bg-black/20">
-                    <TabsTrigger value="recent" className="text-xs h-7">
-                      <History className="h-3 w-3 mr-1" />
-                    </TabsTrigger>
-                    <TabsTrigger value="favorites" className="text-xs h-7">
-                      <Star className="h-3 w-3 mr-1" />
-                    </TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="recent" className="absolute mt-1 w-32 bg-popover dark:bg-black/80 backdrop-blur-md rounded-md border border-border dark:border-white/10 p-1 z-10">
-                    <div className="grid grid-cols-2 gap-1">
-                      {recentSeeds.length > 0 ? (
-                        recentSeeds.map((seed) => (
-                          <Badge
-                            key={seed}
-                            variant="outline"
-                            className="justify-center cursor-pointer hover:bg-accent dark:hover:bg-white/10"
-                            onClick={() => setParams({ ...params, seed })}
-                          >
-                            {seed}
-                          </Badge>
-                        ))
-                      ) : (
-                        <div className="col-span-2 text-center text-xs text-muted-foreground py-2">
-                          {t('image.noRecentSeeds', 'No recent seeds')}
-                        </div>
-                      )}
-                    </div>
-                  </TabsContent>
-                  <TabsContent value="favorites" className="absolute mt-1 w-32 bg-popover dark:bg-black/80 backdrop-blur-md rounded-md border border-border dark:border-white/10 p-1 z-10">
-                    <div className="text-center text-xs text-muted-foreground py-2">
-                      {t('image.noFavorites', 'No favorites yet')}
-                    </div>
-                  </TabsContent>
-                </Tabs>
+
               </div>
             </div>
 
@@ -271,7 +237,7 @@ export default function ImagePage() {
                 value={params.output_format}
                 onValueChange={(value) => setParams({ ...params, output_format: value })}
               >
-                <SelectTrigger className="bg-background/50 dark:bg-black/20 border-border dark:border-white/20">
+                <SelectTrigger className="bg-background/50 dark:bg-black/20 border-[#FF2D7C]/20 dark:border-[#FF2D7C]/30 focus:border-[#FF2D7C]/50">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -350,7 +316,7 @@ export default function ImagePage() {
                     <img
                       src={image}
                       alt={`Generated image ${index + 1}`}
-                      className="w-full rounded-lg object-cover border border-border dark:border-white/10"
+                      className="w-full rounded-lg object-cover border border-[#FF2D7C]/20 dark:border-[#FF2D7C]/30"
                       style={{
                         aspectRatio: params.aspect_ratio.replace(':', '/'),
                       }}
@@ -382,13 +348,13 @@ export default function ImagePage() {
         </Card>
 
         <Card className="col-span-1 p-6 light-theme-card dark:border-white/10 dark:bg-black/20 backdrop-blur-sm flex flex-col">
-          <h2 className="text-xl font-semibold mb-4">{t('image.preview', 'Canvas Preview')}</h2>
+          <h2 className="text-xl font-semibold mb-4">{t('image.preview', 'Photo Preview')}</h2>
 
           <div className="flex-grow flex flex-col items-center justify-center">
             {params.prompt ? (
               <div
                 className={cn(
-                  "relative border-2 border-dashed border-border dark:border-white/20 rounded-lg flex items-center justify-center bg-muted/30 dark:bg-black/30",
+                  "relative border-2 border-dashed border-[#FF2D7C]/30 dark:border-[#FF2D7C]/40 rounded-lg flex items-center justify-center bg-muted/30 dark:bg-black/30",
                   isGenerating && "animate-pulse"
                 )}
                 style={{
@@ -409,12 +375,12 @@ export default function ImagePage() {
                     <p className="text-sm text-muted-foreground dark:text-white/60">
                       {isGenerating
                         ? t('image.creating', 'Creating your image...')
-                        : t('image.readyToGenerate', 'Canvas ready')}
+                        : t('image.readyToGenerate', 'Photo ready')}
                     </p>
                     {isGenerating && (
-                      <div className="mt-3 w-full bg-muted dark:bg-white/10 rounded-full h-1">
+                      <div className="mt-3 w-full bg-muted dark:bg-white/10 rounded-full h-1.5 border border-[#FF2D7C]/20">
                         <div
-                          className="bg-[#FF2D7C] h-1 rounded-full transition-all"
+                          className="bg-gradient-to-r from-[#FF2D7C] to-[#FF2D7C]/80 h-full rounded-full transition-all shadow-sm"
                           style={{ width: `${progress}%` }}
                         />
                       </div>
