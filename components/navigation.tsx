@@ -9,10 +9,10 @@ import { ModeToggle } from './mode-toggle';
 import { LanguageSelector } from './language-selector';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { 
-  Sheet, 
-  SheetContent, 
-  SheetTrigger 
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger
 } from '@/components/ui/sheet';
 import {
   NavigationMenu,
@@ -23,13 +23,13 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
-import { 
-  MessageSquare, 
-  Image as ImageIcon, 
-  Film, 
-  Music, 
-  Mic, 
-  Menu, 
+import {
+  MessageSquare,
+  Image as ImageIcon,
+  Film,
+  Music,
+  Mic,
+  Menu,
   X,
   User,
   LogIn,
@@ -101,9 +101,9 @@ export function Navigation() {
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-        isScrolled 
-          ? "bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-gray-200/20 dark:border-white/10 py-3" 
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-150",
+        isScrolled
+          ? "bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-gray-200/20 dark:border-white/10 py-3"
           : "bg-transparent py-5"
       )}
     >
@@ -129,11 +129,12 @@ export function Navigation() {
                           <NavigationMenuLink
                             className={cn(
                               "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+                              "duration-150 ease-in-out will-change-[background-color,color] backdrop-blur-sm",
                               pathname === item.href
                                 ? "bg-accent text-accent-foreground"
-                                : "transparent"
+                                : "bg-transparent hover:bg-accent/80"
                             )}
-                            style={{ 
+                            style={{
                               borderLeft: pathname === item.href ? `3px solid ${item.color}` : 'none'
                             }}
                           >
@@ -153,7 +154,12 @@ export function Navigation() {
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <Link href="/pricing" legacyBehavior passHref>
-                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  <NavigationMenuLink
+                    className={cn(
+                      navigationMenuTriggerStyle(),
+                      "bg-background/80 backdrop-blur-sm hover:bg-accent/80"
+                    )}
+                  >
                     {t('nav.pricing', 'Pricing')}
                   </NavigationMenuLink>
                 </Link>
@@ -164,7 +170,7 @@ export function Navigation() {
           <div className="flex items-center gap-3 ml-4">
             <LanguageSelector />
             <ModeToggle />
-            
+
             {isLoggedIn ? (
               <Link href="/profile">
                 <Avatar className="hover:ring-2 hover:ring-primary transition-all cursor-pointer">
@@ -204,19 +210,20 @@ export function Navigation() {
 
                 <div className="space-y-1">
                   {navItems.map((item) => (
-                    <Link 
-                      key={item.href} 
+                    <Link
+                      key={item.href}
                       href={item.href}
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <div
                         className={cn(
                           "flex items-center px-3 py-3 rounded-md transition-colors",
+                          "duration-150 ease-in-out",
                           pathname === item.href
                             ? "bg-accent text-accent-foreground"
                             : "hover:bg-accent hover:text-accent-foreground"
                         )}
-                        style={{ 
+                        style={{
                           borderLeft: pathname === item.href ? `3px solid ${item.color}` : 'none'
                         }}
                       >
@@ -225,11 +232,11 @@ export function Navigation() {
                       </div>
                     </Link>
                   ))}
-                  <Link 
-                    href="/pricing" 
+                  <Link
+                    href="/pricing"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    <div className="flex items-center px-3 py-3 rounded-md transition-colors hover:bg-accent hover:text-accent-foreground">
+                    <div className="flex items-center px-3 py-3 rounded-md transition-colors duration-150 ease-in-out hover:bg-accent hover:text-accent-foreground">
                       <Sparkles className="mr-3 h-4 w-4 text-[#FFD700]" />
                       <span>{t('nav.pricing', 'Pricing')}</span>
                     </div>
@@ -241,10 +248,10 @@ export function Navigation() {
                     <ModeToggle />
                     <LanguageSelector />
                   </div>
-                  
+
                   {isLoggedIn ? (
                     <Link href="/profile" onClick={() => setIsMobileMenuOpen(false)}>
-                      <div className="flex items-center px-3 py-3 rounded-md transition-colors hover:bg-accent hover:text-accent-foreground">
+                      <div className="flex items-center px-3 py-3 rounded-md transition-colors duration-150 ease-in-out hover:bg-accent hover:text-accent-foreground">
                         <User className="mr-3 h-4 w-4" />
                         <span>{t('nav.profile', 'Profile')}</span>
                       </div>
