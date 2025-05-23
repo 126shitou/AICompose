@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -17,11 +17,11 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Download, 
-  CopyPlus, 
-  Sparkles, 
-  Dice5, 
+import {
+  Download,
+  CopyPlus,
+  Sparkles,
+  Dice5,
   RefreshCw,
   ImagePlus,
   History,
@@ -60,14 +60,14 @@ export default function ImagePage() {
     output_quality: 90,
     megapixels: 1,
   });
-  
+
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [recentSeeds, setRecentSeeds] = useState<number[]>([]);
   const generateButtonRef = useRef<HTMLButtonElement>(null);
   const longPressTimer = useRef<NodeJS.Timeout | null>(null);
-  
+
   useEffect(() => {
     if (isGenerating) {
       const interval = setInterval(() => {
@@ -78,13 +78,13 @@ export default function ImagePage() {
             setTimeout(() => {
               setIsGenerating(false);
               // Mock image generation with placeholder images
-              const newImages = Array(params.num_outputs).fill(0).map((_, i) => 
+              const newImages = Array(params.num_outputs).fill(0).map((_, i) =>
                 `https://picsum.photos/seed/${params.seed + i}/${aspectRatioOptions[params.aspect_ratio].width}/${aspectRatioOptions[params.aspect_ratio].height}`
               );
               setGeneratedImages(newImages);
               setRecentSeeds(prev => {
                 const updated = [params.seed, ...prev].slice(0, 10);
-                const uniqueSeeds = [...new Set(updated)] as number[];
+                const uniqueSeeds = Array.from(new Set(updated)) as number[];
                 return uniqueSeeds;
               });
             }, 500);
@@ -93,7 +93,7 @@ export default function ImagePage() {
           return newProgress;
         });
       }, 100);
-      
+
       return () => clearInterval(interval);
     } else {
       setProgress(0);
@@ -102,12 +102,12 @@ export default function ImagePage() {
 
   const handleGenerate = () => {
     if (isGenerating) return;
-    
+
     if (params.prompt.trim() === '') {
       alert('Please enter a prompt');
       return;
     }
-    
+
     setIsGenerating(true);
     setProgress(0);
   };
@@ -144,7 +144,7 @@ export default function ImagePage() {
   return (
     <div className="min-h-[calc(100vh-120px)]">
       <h1 className="text-3xl font-bold mb-4">{t('image.title', 'Image Generation')}</h1>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="col-span-1 lg:col-span-2 p-6 light-theme-card dark:border-white/10 dark:bg-black/20 backdrop-blur-sm">
           <div className="mb-4">
@@ -158,14 +158,14 @@ export default function ImagePage() {
               className="h-20 bg-background/50 dark:bg-black/20 border-border dark:border-white/20 focus-visible:ring-[#FF2D7C]"
             />
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div>
               <label className="block text-sm font-medium mb-1">
                 {t('image.aspectRatio', 'Aspect Ratio')}
               </label>
-              <Select 
-                value={params.aspect_ratio} 
+              <Select
+                value={params.aspect_ratio}
                 onValueChange={(value) => setParams({ ...params, aspect_ratio: value as keyof typeof aspectRatioOptions })}
               >
                 <SelectTrigger className="bg-background/50 dark:bg-black/20 border-border dark:border-white/20">
@@ -178,7 +178,7 @@ export default function ImagePage() {
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium mb-1">
                 {t('image.numOutputs', 'Number of Images')} ({params.num_outputs})
@@ -192,7 +192,7 @@ export default function ImagePage() {
                 className="py-2"
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium mb-1">
                 {t('image.inferenceSteps', 'Quality Steps')} ({params.num_inference_steps})
@@ -206,7 +206,7 @@ export default function ImagePage() {
                 className="py-2"
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium mb-1 flex justify-between">
                 <span>{t('image.seed', 'Seed')}</span>
@@ -238,7 +238,7 @@ export default function ImagePage() {
                     <div className="grid grid-cols-2 gap-1">
                       {recentSeeds.length > 0 ? (
                         recentSeeds.map((seed) => (
-                          <Badge 
+                          <Badge
                             key={seed}
                             variant="outline"
                             className="justify-center cursor-pointer hover:bg-accent dark:hover:bg-white/10"
@@ -262,13 +262,13 @@ export default function ImagePage() {
                 </Tabs>
               </div>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium mb-1">
                 {t('image.outputFormat', 'Output Format')}
               </label>
-              <Select 
-                value={params.output_format} 
+              <Select
+                value={params.output_format}
                 onValueChange={(value) => setParams({ ...params, output_format: value })}
               >
                 <SelectTrigger className="bg-background/50 dark:bg-black/20 border-border dark:border-white/20">
@@ -281,7 +281,7 @@ export default function ImagePage() {
                 </SelectContent>
               </Select>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium mb-1">
                 {t('image.outputQuality', 'Output Quality')} ({params.output_quality}%)
@@ -296,10 +296,10 @@ export default function ImagePage() {
               />
             </div>
           </div>
-          
+
           <div className="flex justify-between items-center">
             <div className="text-sm text-muted-foreground">
-              {t('image.credits', 'Credits: ')} 
+              {t('image.credits', 'Credits: ')}
               <span className="font-medium text-[#FF2D7C]">
                 {params.num_outputs * Math.ceil(params.num_inference_steps / 2)}
               </span>
@@ -314,7 +314,7 @@ export default function ImagePage() {
               className="bg-[#FF2D7C] hover:bg-[#FF2D7C]/80 text-white relative overflow-hidden"
             >
               {isGenerating && (
-                <div 
+                <div
                   className="absolute left-0 top-0 bottom-0 bg-white/20"
                   style={{ width: `${progress}%` }}
                 />
@@ -334,21 +334,21 @@ export default function ImagePage() {
               </span>
             </Button>
           </div>
-          
+
           {isGenerating && (
             <div className="mt-4 text-center text-sm text-muted-foreground">
               <p>{t('image.holdToCancel', 'Hold the Generate button to cancel')}</p>
             </div>
           )}
-          
+
           {generatedImages.length > 0 && (
             <div className="mt-8">
               <h3 className="text-lg font-medium mb-3">{t('image.results', 'Generated Images')}</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4">
                 {generatedImages.map((image, index) => (
                   <div key={index} className="relative group">
-                    <img 
-                      src={image} 
+                    <img
+                      src={image}
                       alt={`Generated image ${index + 1}`}
                       className="w-full rounded-lg object-cover border border-border dark:border-white/10"
                       style={{
@@ -356,8 +356,8 @@ export default function ImagePage() {
                       }}
                     />
                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-3">
-                      <Button 
-                        size="sm" 
+                      <Button
+                        size="sm"
                         variant="outline"
                         className="border-white text-white hover:bg-white/20"
                         onClick={() => downloadImage(image, index)}
@@ -365,8 +365,8 @@ export default function ImagePage() {
                         <Download className="h-4 w-4 mr-1" />
                         {t('image.download', 'Download')}
                       </Button>
-                      <Button 
-                        size="sm" 
+                      <Button
+                        size="sm"
                         variant="outline"
                         className="border-white text-white hover:bg-white/20"
                       >
@@ -380,13 +380,13 @@ export default function ImagePage() {
             </div>
           )}
         </Card>
-        
+
         <Card className="col-span-1 p-6 light-theme-card dark:border-white/10 dark:bg-black/20 backdrop-blur-sm flex flex-col">
           <h2 className="text-xl font-semibold mb-4">{t('image.preview', 'Canvas Preview')}</h2>
-          
+
           <div className="flex-grow flex flex-col items-center justify-center">
             {params.prompt ? (
-              <div 
+              <div
                 className={cn(
                   "relative border-2 border-dashed border-border dark:border-white/20 rounded-lg flex items-center justify-center bg-muted/30 dark:bg-black/30",
                   isGenerating && "animate-pulse"
@@ -398,8 +398,8 @@ export default function ImagePage() {
                 }}
               >
                 {generatedImages.length > 0 ? (
-                  <img 
-                    src={generatedImages[0]} 
+                  <img
+                    src={generatedImages[0]}
                     alt="Latest generated image"
                     className="w-full h-full object-cover rounded-lg"
                   />
@@ -407,15 +407,15 @@ export default function ImagePage() {
                   <div className="text-center p-4">
                     <ImagePlus className="h-10 w-10 text-muted-foreground dark:text-white/30 mx-auto mb-2" />
                     <p className="text-sm text-muted-foreground dark:text-white/60">
-                      {isGenerating 
-                        ? t('image.creating', 'Creating your image...') 
+                      {isGenerating
+                        ? t('image.creating', 'Creating your image...')
                         : t('image.readyToGenerate', 'Canvas ready')}
                     </p>
                     {isGenerating && (
                       <div className="mt-3 w-full bg-muted dark:bg-white/10 rounded-full h-1">
-                        <div 
-                          className="bg-[#FF2D7C] h-1 rounded-full transition-all" 
-                          style={{ width: `${progress}%` }} 
+                        <div
+                          className="bg-[#FF2D7C] h-1 rounded-full transition-all"
+                          style={{ width: `${progress}%` }}
                         />
                       </div>
                     )}
@@ -434,7 +434,7 @@ export default function ImagePage() {
               </div>
             )}
           </div>
-          
+
           <div className="mt-6 space-y-4">
             <div>
               <h3 className="text-md font-medium mb-2">{t('image.promptTips', 'Prompt Tips')}</h3>
