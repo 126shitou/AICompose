@@ -22,7 +22,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={inter.className} style={{ marginRight: '0px !important' }}>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
