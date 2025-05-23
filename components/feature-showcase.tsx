@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { motion } from '@/lib/motion-mock';
 import { useTranslation } from '@/hooks/use-translation';
 import { cn } from '@/lib/utils';
+import { hexToRgba } from '@/lib/color-utils';
 import { 
   MessageSquare, 
   Image as ImageIcon, 
@@ -93,13 +94,17 @@ export function FeatureShowcase() {
             className={cn(
               "flex flex-col items-center p-4 rounded-lg transition-all duration-300 border",
               activeFeature === feature.id 
-                ? `border-[${feature.color}] bg-[${feature.color}]/10 shadow-lg transform -translate-y-1`
+                ? "shadow-lg transform -translate-y-1"
                 : "border-transparent hover:bg-accent/50"
             )}
+            style={activeFeature === feature.id ? {
+              borderColor: feature.color,
+              backgroundColor: hexToRgba(feature.color, 0.1),
+            } : {}}
           >
-            <div 
+             <div 
               className="p-3 rounded-full mb-3" 
-              style={{ backgroundColor: `${feature.color}20` }}
+              style={{ backgroundColor: hexToRgba(feature.color, 0.2) }}
             >
               <div style={{ color: feature.color }}>{feature.icon}</div>
             </div>

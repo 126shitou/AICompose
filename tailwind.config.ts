@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss';
+import { generateColorSafelist } from './lib/color-utils';
 
 const config: Config = {
   darkMode: ['class'],
@@ -6,6 +7,14 @@ const config: Config = {
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
+  ],
+  safelist: [
+    // 使用工具函数生成的颜色类名
+    ...generateColorSafelist(),
+    // 额外的特定类名
+    'text-[0.8rem]',
+    'border-[1.5px]',
+    'rounded-[2px]',
   ],
   theme: {
     extend: {
