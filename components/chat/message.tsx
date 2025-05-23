@@ -88,7 +88,7 @@ export function ChatMessage({ message, onPin }: ChatMessageProps) {
           <p>{message.content}</p>
           
           {message.sources && message.sources.length > 0 && (
-            <div className="mt-3 pt-2 border-t border-white/10">
+            <div className="mt-3 pt-2 border-t border-border">
               <p className="text-xs text-muted-foreground mb-1">Sources:</p>
               <div className="flex flex-wrap gap-2">
                 {message.sources.map((source, i) => (
@@ -97,7 +97,7 @@ export function ChatMessage({ message, onPin }: ChatMessageProps) {
                     href={source.url} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="text-xs text-[#00F7FF] hover:underline"
+                    className="text-xs text-primary hover:underline"
                   >
                     {source.title}
                   </a>

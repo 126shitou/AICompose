@@ -110,7 +110,7 @@ export default function ChatPage() {
       <h1 className="text-3xl font-bold mb-4">{t('chat.title', 'AI Assistant')}</h1>
       
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 flex-grow mb-6">
-        <Card className="col-span-1 p-4 border-white/10 bg-black/20 backdrop-blur-sm hidden lg:block">
+        <Card className="col-span-1 p-4 border-border bg-card/50 backdrop-blur-sm hidden lg:block">
           <h2 className="text-xl font-semibold mb-3">{t('chat.history', 'History')}</h2>
           <div className="space-y-2">
             <Button variant="outline" className="w-full justify-start">
@@ -124,9 +124,9 @@ export default function ChatPage() {
           </div>
         </Card>
         
-        <Card className="col-span-1 lg:col-span-3 flex flex-col border-white/10 bg-black/20 backdrop-blur-sm overflow-hidden">
+        <Card className="col-span-1 lg:col-span-3 flex flex-col border-border bg-card/50 backdrop-blur-sm overflow-hidden">
           <Tabs defaultValue="chat" className="flex-grow flex flex-col">
-            <div className="px-4 pt-3 border-b border-white/10">
+            <div className="px-4 pt-3 border-b border-border">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="chat">{t('chat.messages', 'Messages')}</TabsTrigger>
                 <TabsTrigger value="pinned">
@@ -161,7 +161,7 @@ export default function ChatPage() {
                 </div>
               </ScrollArea>
               
-              <div className="p-4 border-t border-white/10 bg-black/30">
+              <div className="p-4 border-t border-border bg-muted/30">
                 <div className="relative">
                   <Textarea
                     ref={textareaRef}
@@ -169,13 +169,13 @@ export default function ChatPage() {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    className="min-h-24 pr-20 resize-none bg-black/20 border-white/20 focus-visible:ring-[#00F7FF]"
+                    className="min-h-24 pr-20 resize-none bg-background/50 border-border focus-visible:ring-primary"
                   />
                   <div className="absolute right-3 bottom-3 flex gap-2">
                     <Button 
                       variant="outline" 
                       size="icon" 
-                      className="rounded-full h-8 w-8 border-white/20"
+                      className="rounded-full h-8 w-8 border-border"
                     >
                       <Paperclip className="h-4 w-4" />
                     </Button>

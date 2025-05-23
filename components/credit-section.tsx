@@ -69,7 +69,7 @@ export function CreditSection() {
         <h2 className="text-3xl md:text-4xl font-bold mb-4">
           {t('pricing.title', 'Choose Your Plan')}
         </h2>
-        <p className="text-lg text-gray-300 max-w-3xl mx-auto">
+        <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
           {t('pricing.subtitle', 'Select the perfect credit package for your creative needs')}
         </p>
       </div>
@@ -84,7 +84,7 @@ export function CreditSection() {
           >
             <Card className={cn(
               "relative h-full border transition-all duration-300 hover:shadow-lg hover:-translate-y-1",
-              tier.isPopular ? "border-[#FF2D7C]" : "border-gray-700 hover:border-gray-500"
+              tier.isPopular ? "border-[#FF2D7C]" : "border-border hover:border-primary/50"
             )}>
               {tier.isPopular && (
                 <div className="absolute -top-3 left-0 right-0 flex justify-center">
@@ -98,12 +98,12 @@ export function CreditSection() {
                   <span>{tier.name}</span>
                   <span className="text-2xl">{tier.price}</span>
                 </CardTitle>
-                <p className="text-sm text-gray-400">{tier.description}</p>
+                <p className="text-sm text-muted-foreground">{tier.description}</p>
               </CardHeader>
               <CardContent>
                 <div className="mb-6">
                   <div className="text-3xl font-bold text-[#00F7FF] mb-1">{tier.credits}</div>
-                  <div className="text-sm text-gray-400">{t('pricing.creditsIncluded', 'Credits Included')}</div>
+                  <div className="text-sm text-muted-foreground">{t('pricing.creditsIncluded', 'Credits Included')}</div>
                 </div>
                 <ul className="space-y-2">
                   {tier.features.map((feature, i) => (

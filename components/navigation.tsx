@@ -103,14 +103,14 @@ export function Navigation() {
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
         isScrolled 
-          ? "bg-black/80 backdrop-blur-md border-b border-white/10 py-3" 
+          ? "bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-gray-200/20 dark:border-white/10 py-3" 
           : "bg-transparent py-5"
       )}
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
         <Link href="/" className="flex items-center space-x-2">
           <div className="relative w-8 h-8 bg-gradient-to-br from-[#00F7FF] to-[#FF2D7C] rounded-lg transform rotate-45">
-            <div className="absolute inset-1 bg-black rounded-md" />
+            <div className="absolute inset-1 bg-white dark:bg-black rounded-md" />
           </div>
           <span className="font-bold text-xl">NexusAI</span>
         </Link>
@@ -188,12 +188,12 @@ export function Navigation() {
                 <Menu className="h-6 w-6" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-[85%] bg-background backdrop-blur-xl border-r border-white/10">
+            <SheetContent side="left" className="w-[85%] bg-background/95 dark:bg-background backdrop-blur-xl border-r border-gray-200/20 dark:border-white/10">
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between mb-6">
                   <Link href="/" className="flex items-center space-x-2" onClick={() => setIsMobileMenuOpen(false)}>
                     <div className="relative w-8 h-8 bg-gradient-to-br from-[#00F7FF] to-[#FF2D7C] rounded-lg transform rotate-45">
-                      <div className="absolute inset-1 bg-black rounded-md" />
+                      <div className="absolute inset-1 bg-white dark:bg-black rounded-md" />
                     </div>
                     <span className="font-bold text-xl">NexusAI</span>
                   </Link>
@@ -236,7 +236,7 @@ export function Navigation() {
                   </Link>
                 </div>
 
-                <div className="mt-auto pt-6 border-t border-white/10">
+                <div className="mt-auto pt-6 border-t border-gray-200/40 dark:border-white/10">
                   <div className="flex items-center justify-between mb-4">
                     <ModeToggle />
                     <LanguageSelector />

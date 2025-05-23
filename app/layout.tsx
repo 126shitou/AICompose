@@ -12,22 +12,7 @@ export const metadata: Metadata = {
   title: 'NexusAI - Advanced AI Platform',
   description: 'Explore the future of AI with chat, image, video, and audio generation capabilities',
   keywords: 'AI, artificial intelligence, chat, image generation, video generation, text to speech, machine learning',
-  openGraph: {
-    title: 'NexusAI - Advanced AI Platform',
-    description: 'Explore the future of AI with chat, image, video, and audio generation capabilities',
-    url: 'https://nexus-ai.com',
-    siteName: 'NexusAI',
-    images: [
-      {
-        url: 'https://nexus-ai.com/og-image.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'NexusAI Platform',
-      },
-    ],
-    locale: 'en_US',
-    type: 'website',
-  },
+
 };
 
 export default function RootLayout({
@@ -44,7 +29,7 @@ export default function RootLayout({
           enableSystem
         >
           <LanguageProvider>
-            <div className="min-h-screen bg-gradient-to-br from-[#0A1A2F] to-[#160B2E] text-foreground">
+            <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-pink-50 dark:from-[#0A1A2F] dark:to-[#160B2E] text-foreground">
               <Navigation />
               <main className="container mx-auto px-4 pb-8 pt-20">
                 {children}

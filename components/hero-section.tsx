@@ -33,8 +33,8 @@ export function HeroSection() {
       color: string;
       
       constructor() {
-        this.x = Math.random() * canvas.offsetWidth;
-        this.y = Math.random() * canvas.offsetHeight;
+        this.x = Math.random() * (canvas?.offsetWidth ?? 0);
+        this.y = Math.random() * (canvas?.offsetHeight ?? 0);
         this.size = Math.random() * 3 + 0.5;
         this.speedX = Math.random() * 1 - 0.5;
         this.speedY = Math.random() * 1 - 0.5;
@@ -108,7 +108,7 @@ export function HeroSection() {
           {t('hero.title', 'NexusAI')}
         </motion.h1>
         <motion.p 
-          className="text-xl md:text-2xl text-gray-100 max-w-3xl mb-8"
+          className="text-xl md:text-2xl text-muted-foreground max-w-3xl mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
