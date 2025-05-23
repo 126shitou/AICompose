@@ -9,21 +9,32 @@ import { ModeToggle } from './mode-toggle';
 import { LanguageSelector } from './language-selector';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger
+import { 
+  Sheet, 
+  SheetContent, 
+  SheetTrigger 
 } from '@/components/ui/sheet';
 import {
-  MessageSquare,
-  Image as ImageIcon,
-  Film,
-  Music,
-  Mic,
-  Menu,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  MessageSquare, 
+  Image as ImageIcon, 
+  Film, 
+  Music, 
+  Mic, 
+  Menu, 
   X,
   User,
   LogIn,
+  LogOut,
+  Settings,
+  CreditCard,
   Sparkles
 } from 'lucide-react';
 
@@ -34,12 +45,40 @@ interface NavItem {
   color?: string;
 }
 
+interface UserData {
+  id: string;
+  name: string;
+  email: string;
+  avatar: string;
+  credits: number;
+}
+
 export function Navigation() {
   const pathname = usePathname();
   const { t } = useTranslation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Mock login state
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userData, setUserData] = useState<UserData | null>(null);
+
+  // Mock user data
+  const mockUser: UserData = {
+    id: '1',
+    name: 'Alex Chen',
+    email: 'alex.chen@example.com',
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+    credits: 1250
+  };
+
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+    setUserData(mockUser);
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setUserData(null);
+  };
 
   const navItems: NavItem[] = [
     {
@@ -93,8 +132,8 @@ export function Navigation() {
     <header
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-150",
-        isScrolled
-          ? "bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-gray-200/20 dark:border-white/10 py-3"
+        isScrolled 
+          ? "bg-white/80 dark:bg-black/80 backdrop-blur-md border-b border-gray-200/20 dark:border-white/10 py-3" 
           : "bg-transparent py-5"
       )}
     >
@@ -110,20 +149,20 @@ export function Navigation() {
         <div className="hidden lg:flex items-center space-x-1">
           <nav className="flex items-center space-x-1">
             {/* Navigation Items */}
-            {navItems.map((item) => (
+                    {navItems.map((item) => (
               <Link key={item.href} href={item.href}>
                 <Button
                   variant="ghost"
-                  className={cn(
+                            className={cn(
                     "h-10 px-3 py-2 hover:bg-accent/50 hover:text-accent-foreground transition-all duration-300 relative group",
                     "border-b-2 border-transparent hover:border-b-2",
                     pathname === item.href && "border-b-2"
-                  )}
-                  style={{
+                            )}
+                            style={{ 
                     borderBottomColor: pathname === item.href ? item.color : 'transparent',
-                  }}
-                >
-                  <div className="flex items-center gap-2">
+                            }}
+                          >
+                            <div className="flex items-center gap-2">
                     <div 
                       className="will-change-transform group-hover:scale-110 group-hover:animate-pulse"
                       style={{ 
@@ -139,9 +178,9 @@ export function Navigation() {
                     >
                       {item.name}
                     </span>
-                  </div>
+                            </div>
                 </Button>
-              </Link>
+                        </Link>
             ))}
 
             {/* Pricing Link */}
@@ -170,7 +209,7 @@ export function Navigation() {
                   </span>
                 </div>
               </Button>
-            </Link>
+                </Link>
           </nav>
         </div>
 
@@ -178,70 +217,112 @@ export function Navigation() {
         <div className="flex items-center gap-3">
           <div className="hidden lg:flex items-center gap-3">
             <div className="transform transition-all duration-300 hover:scale-105">
-              <LanguageSelector />
+            <LanguageSelector />
             </div>
             <div className="transform transition-all duration-300 hover:scale-105 hover:rotate-12">
-              <ModeToggle />
+            <ModeToggle />
             </div>
-
+            
             {isLoggedIn ? (
-              <Link href="/profile" className="transform transition-all duration-300 hover:scale-105">
-                <Avatar className="hover:ring-2 hover:ring-primary transition-all cursor-pointer">
-                  <AvatarImage src="https://github.com/shadcn.png" alt="@user" />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
-              </Link>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <div className="flex items-center gap-3 cursor-pointer transform transition-all duration-300 hover:scale-105">
+                    <div className="flex flex-col items-end text-sm">
+                      <span className="font-medium text-foreground">{userData?.name}</span>
+                      <span className="text-xs text-muted-foreground">{userData?.credits} credits</span>
+                    </div>
+                    <Avatar className="hover:ring-2 hover:ring-[#00F7FF] transition-all">
+                      <AvatarImage src={userData?.avatar} alt={userData?.name} />
+                      <AvatarFallback className="bg-[#00F7FF]/20 text-[#00F7FF]">
+                        {userData?.name?.split(' ').map(n => n[0]).join('')}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 dark:bg-gray-800/95 dark:border-gray-600/50 dark:backdrop-blur-sm">
+                  <DropdownMenuLabel className="dark:text-gray-200">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium">{userData?.name}</p>
+                      <p className="text-xs text-muted-foreground dark:text-gray-400">{userData?.email}</p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator className="dark:bg-gray-600/50" />
+                  <DropdownMenuItem className="dark:text-gray-300 dark:hover:bg-gray-700/50 dark:focus:bg-gray-700/50  cursor-pointer">
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="dark:text-gray-300 dark:hover:bg-gray-700/50 dark:focus:bg-gray-700/50  cursor-pointer">
+                    <CreditCard className="mr-2 h-4 w-4" />
+                    <span>Billing</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="dark:text-gray-300 dark:hover:bg-gray-700/50 dark:focus:bg-gray-700/50  cursor-pointer">
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Settings</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="dark:bg-gray-600/50" />
+                  <DropdownMenuItem 
+                    onClick={handleLogout}
+                    className="text-red-600 dark:text-red-400 dark:hover:bg-gray-700/50 dark:focus:bg-gray-700/50  cursor-pointer"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
-              <Button className="bg-[#00F7FF] hover:bg-[#00F7FF]/80 text-black transform transition-all duration-300 hover:scale-105 hover:shadow-lg">
+              <Button 
+                onClick={handleLogin}
+                className="bg-[#00F7FF] hover:bg-[#00F7FF]/80 text-black transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
+              >
                 <LogIn className="mr-2 h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
                 {t('nav.login', 'Sign In')}
               </Button>
             )}
-          </div>
+        </div>
 
-          {/* Mobile Navigation */}
+        {/* Mobile Navigation */}
           <div className="lg:hidden">
-            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-              <SheetTrigger asChild>
+          <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+            <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="transition-all duration-300 hover:scale-110 hover:rotate-90">
-                  <Menu className="h-6 w-6" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-[85%] bg-background/95 dark:bg-background backdrop-blur-xl border-r border-gray-200/20 dark:border-white/10">
-                <div className="flex flex-col h-full">
-                  <div className="flex items-center justify-between mb-6">
+                <Menu className="h-6 w-6" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-[85%] bg-background/95 dark:bg-background backdrop-blur-xl border-r border-gray-200/20 dark:border-white/10">
+              <div className="flex flex-col h-full">
+                <div className="flex items-center justify-between mb-6">
                     <Link href="/" className="flex items-center space-x-2 group" onClick={() => setIsMobileMenuOpen(false)}>
                       <div className="relative w-8 h-8 bg-gradient-to-br from-[#00F7FF] to-[#FF2D7C] rounded-lg transform rotate-45 transition-all duration-300 group-hover:rotate-[60deg] group-hover:scale-110">
                         <div className="absolute inset-1 bg-white dark:bg-black rounded-md transition-all duration-300" />
-                      </div>
+                    </div>
                       <span className="font-bold text-xl   duration-200 group-hover:text-[#00F7FF]">NexusAI</span>
-                    </Link>
+                  </Link>
                     <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(false)} className="transition-all duration-300 hover:scale-110 hover:rotate-90">
-                      <X className="h-6 w-6" />
-                    </Button>
-                  </div>
+                    <X className="h-6 w-6" />
+                  </Button>
+                </div>
 
-                  <div className="space-y-1">
+                <div className="space-y-1">
                     {navItems.map((item, index) => (
-                      <Link
-                        key={item.href}
-                        href={item.href}
-                        onClick={() => setIsMobileMenuOpen(false)}
-                      >
-                        <div
-                          className={cn(
+                    <Link 
+                      key={item.href} 
+                      href={item.href}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <div
+                        className={cn(
                             "flex items-center px-3 py-3 rounded-md transition-all group",
                             "duration-300 ease-in-out border-l-4 border-transparent",
                             "hover:scale-[1.02] hover:shadow-sm",
-                            pathname === item.href
+                          pathname === item.href
                               ? "bg-accent/10 scale-[1.02]"
-                              : "hover:bg-accent hover:text-accent-foreground"
-                          )}
-                          style={{
+                            : "hover:bg-accent hover:text-accent-foreground"
+                        )}
+                        style={{ 
                             borderLeftColor: pathname === item.href ? item.color : 'transparent',
                             animationDelay: `${index * 50}ms`,
-                          }}
-                        >
+                        }}
+                      >
                           <div 
                             className="mr-3 will-change-transform group-hover:scale-110 group-hover:rotate-6" 
                             style={{ 
@@ -257,13 +338,13 @@ export function Navigation() {
                           >
                             {item.name}
                           </span>
-                        </div>
-                      </Link>
-                    ))}
-                    <Link
-                      href="/pricing"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
+                      </div>
+                    </Link>
+                  ))}
+                  <Link 
+                    href="/pricing" 
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
                       <div className={cn(
                         "flex items-center px-3 py-3 rounded-md transition-all duration-300 ease-in-out group",
                         "border-l-4 border-transparent hover:scale-[1.02] hover:shadow-sm",
@@ -285,32 +366,63 @@ export function Navigation() {
                         >
                           {t('nav.pricing', 'Pricing')}
                         </span>
-                      </div>
-                    </Link>
-                  </div>
-
-                  <div className="mt-auto pt-6 border-t border-gray-200/40 dark:border-white/10">
-                    <div className="flex items-center justify-between mb-4">
-                      <ModeToggle />
-                      <LanguageSelector />
                     </div>
-
-                    {isLoggedIn ? (
-                      <Link href="/profile" onClick={() => setIsMobileMenuOpen(false)}>
-                        <div className="flex items-center px-3 py-3 rounded-md will-change-auto hover:bg-accent hover:text-accent-foreground" style={{ transition: 'background-color 150ms ease-out, color 150ms ease-out' }}>
-                          <User className="mr-3 h-4 w-4" />
-                          <span>{t('nav.profile', 'Profile')}</span>
-                        </div>
-                      </Link>
-                    ) : (
-                      <Button className="w-full bg-[#00F7FF] hover:bg-[#00F7FF]/80 text-black">
-                        <LogIn className="mr-2 h-4 w-4" /> {t('nav.login', 'Sign In')}
-                      </Button>
-                    )}
-                  </div>
+                  </Link>
                 </div>
-              </SheetContent>
-            </Sheet>
+
+                <div className="mt-auto pt-6 border-t border-gray-200/40 dark:border-white/10">
+                  <div className="flex items-center justify-between mb-4">
+                    <ModeToggle />
+                    <LanguageSelector />
+                  </div>
+                  
+                  {isLoggedIn ? (
+                    <div className="space-y-2">
+                      <div className="flex items-center px-3 py-3 rounded-md bg-accent/5">
+                        <Avatar className="h-10 w-10 mr-3">
+                          <AvatarImage src={userData?.avatar} alt={userData?.name} />
+                          <AvatarFallback className="bg-[#00F7FF]/20 text-[#00F7FF]">
+                            {userData?.name?.split(' ').map(n => n[0]).join('')}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{userData?.name}</p>
+                          <p className="text-xs text-muted-foreground">{userData?.credits} credits</p>
+                        </div>
+                      </div>
+                      <div 
+                        className="flex items-center px-3 py-3 rounded-md hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <User className="mr-3 h-4 w-4" />
+                        <span>{t('nav.profile', 'Profile')}</span>
+                      </div>
+                      <div 
+                        className="flex items-center px-3 py-3 rounded-md hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                        onClick={() => {
+                          handleLogout();
+                          setIsMobileMenuOpen(false);
+                        }}
+                      >
+                        <LogOut className="mr-3 h-4 w-4 text-red-600 dark:text-red-400" />
+                        <span className="text-red-600 dark:text-red-400">Log out</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <Button 
+                      onClick={() => {
+                        handleLogin();
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="w-full bg-[#00F7FF] hover:bg-[#00F7FF]/80 text-black"
+                    >
+                      <LogIn className="mr-2 h-4 w-4" /> {t('nav.login', 'Sign In')}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
           </div>
         </div>
       </div>
