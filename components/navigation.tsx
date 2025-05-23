@@ -248,16 +248,22 @@ export function Navigation() {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator className="dark:bg-gray-600/50" />
                   <DropdownMenuItem className="dark:text-gray-300 dark:hover:bg-gray-700/50 dark:focus:bg-gray-700/50  cursor-pointer">
-                    <User className="mr-2 h-4 w-4" />
-                    <span>Profile</span>
+                    <Link href="/profile" className="flex items-center w-full">
+                      <User className="mr-2 h-4 w-4" />
+                      <span>Profile</span>
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem className="dark:text-gray-300 dark:hover:bg-gray-700/50 dark:focus:bg-gray-700/50  cursor-pointer">
-                    <CreditCard className="mr-2 h-4 w-4" />
-                    <span>Billing</span>
+                    <Link href="/billing" className="flex items-center w-full">
+                      <CreditCard className="mr-2 h-4 w-4" />
+                      <span>Billing</span>
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem className="dark:text-gray-300 dark:hover:bg-gray-700/50 dark:focus:bg-gray-700/50  cursor-pointer">
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Settings</span>
+                    <Link href="/settings" className="flex items-center w-full">
+                      <Settings className="mr-2 h-4 w-4" />
+                      <span>Settings</span>
+                    </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator className="dark:bg-gray-600/50" />
                   <DropdownMenuItem 
@@ -394,8 +400,10 @@ export function Navigation() {
                         className="flex items-center px-3 py-3 rounded-md hover:bg-accent hover:text-accent-foreground cursor-pointer"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
-                        <User className="mr-3 h-4 w-4" />
-                        <span>{t('nav.profile', 'Profile')}</span>
+                        <Link href="/profile" className="flex items-center w-full">
+                          <User className="mr-3 h-4 w-4" />
+                          <span>{t('nav.profile', 'Profile')}</span>
+                        </Link>
                       </div>
                       <div 
                         className="flex items-center px-3 py-3 rounded-md hover:bg-accent hover:text-accent-foreground cursor-pointer"
