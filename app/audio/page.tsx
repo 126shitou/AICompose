@@ -31,104 +31,93 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-// Voice models data
-const allVoices = [
-  // English - British Male
-  { id: 'bm_lewis', nameKey: 'voice.bm_lewis', gender: 'male', premium: false, sample: '#', avatar: 'lewis', rating: 4.8, language: 'en' },
-  { id: 'bm_daniel', nameKey: 'voice.bm_daniel', gender: 'male', premium: false, sample: '#', avatar: 'daniel', rating: 4.7, language: 'en' },
-  { id: 'bm_george', nameKey: 'voice.bm_george', gender: 'male', premium: true, sample: '#', avatar: 'george', rating: 4.9, language: 'en' },
-  // English - British Female
-  { id: 'bf_emma', nameKey: 'voice.bf_emma', gender: 'female', premium: false, sample: '#', avatar: 'emma', rating: 4.7, language: 'en' },
-  { id: 'bf_alice', nameKey: 'voice.bf_alice', gender: 'female', premium: false, sample: '#', avatar: 'alice', rating: 4.8, language: 'en' },
-  { id: 'bf_lily', nameKey: 'voice.bf_lily', gender: 'female', premium: true, sample: '#', avatar: 'lily', rating: 4.9, language: 'en' },
-  // Japanese - Male
-  { id: 'jm_kumo', nameKey: 'voice.jm_kumo', gender: 'male', premium: false, sample: '#', avatar: 'kumo', rating: 4.7, language: 'ja' },
-  // Japanese - Female
-  { id: 'jf_tebukuro', nameKey: 'voice.jf_tebukuro', gender: 'female', premium: false, sample: '#', avatar: 'tebukuro', rating: 4.8, language: 'ja' },
-  { id: 'jf_alpha', nameKey: 'voice.jf_alpha', gender: 'female', premium: true, sample: '#', avatar: 'alpha', rating: 4.9, language: 'ja' },
-  { id: 'jf_gongitsune', nameKey: 'voice.jf_gongitsune', gender: 'female', premium: true, sample: '#', avatar: 'gongitsune', rating: 4.8, language: 'ja' },
-  // Chinese - Male
-  { id: 'zm_yunxia', nameKey: 'voice.zm_yunxia', gender: 'male', premium: false, sample: '#', avatar: 'yunxia', rating: 4.8, language: 'zh' },
-  { id: 'zm_yunxi', nameKey: 'voice.zm_yunxi', gender: 'male', premium: true, sample: '#', avatar: 'yunxi', rating: 4.9, language: 'zh' },
-  { id: 'zm_yunyang', nameKey: 'voice.zm_yunyang', gender: 'male', premium: true, sample: '#', avatar: 'yunyang', rating: 4.8, language: 'zh' },
-  // Chinese - Female
-  { id: 'zf_xiaobei', nameKey: 'voice.zf_xiaobei', gender: 'female', premium: false, sample: '#', avatar: 'xiaobei', rating: 4.7, language: 'zh' },
-  { id: 'zf_xiaoni', nameKey: 'voice.zf_xiaoni', gender: 'female', premium: true, sample: '#', avatar: 'xiaoni', rating: 4.9, language: 'zh' },
-  // French - Female
-  { id: 'ff_siwis', nameKey: 'voice.ff_siwis', gender: 'female', premium: true, sample: '#', avatar: 'siwis', rating: 4.8, language: 'fr' },
+// 使用Kokoro模型的声音配置
+const kokoroVoices = [
+  { id: 'af_nicole', name: 'Nicole', gender: 'female', description: 'Professional female voice' },
+  { id: 'af_sarah', name: 'Sarah', gender: 'female', description: 'Warm female voice' },
+  { id: 'af_sky', name: 'Sky', gender: 'female', description: 'Clear female voice' },
+  { id: 'af_bella', name: 'Bella', gender: 'female', description: 'Elegant female voice' },
+  { id: 'af_alloy', name: 'Alloy', gender: 'female', description: 'Modern female voice' },
+  { id: 'am_michael', name: 'Michael', gender: 'male', description: 'Deep male voice' },
+  { id: 'am_adam', name: 'Adam', gender: 'male', description: 'Professional male voice' },
+  { id: 'am_echo', name: 'Echo', gender: 'male', description: 'Clear male voice' },
+  { id: 'am_fable', name: 'Fable', gender: 'male', description: 'Storytelling male voice' },
+  { id: 'am_onyx', name: 'Onyx', gender: 'male', description: 'Rich male voice' },
+  { id: 'am_nova', name: 'Nova', gender: 'male', description: 'Energetic male voice' },
+  { id: 'am_shimmer', name: 'Shimmer', gender: 'male', description: 'Smooth male voice' }
 ];
-
-const languageNames = {
-  en: 'English',
-  ja: '日本語',
-  zh: '中文',
-  fr: 'Français'
-};
 
 interface AudioParams {
   text: string;
   voice: string;
   speed: number;
-  pitch: number;
-  volume: number;
-  output_format: string;
+}
+
+interface VoiceConfig {
+  availableVoices: string[];
+  voiceDescriptions: Record<string, string>;
+  voiceCategories: {
+    female: string[];
+    male: string[];
+  };
+  speedRange: { min: number; max: number; default: number };
+  maxTextLength: number;
+  creditsCostPer100Chars: number;
+  userCredits?: number;
 }
 
 export default function AudioPage() {
   const { t } = useTranslation();
   const [params, setParams] = useState<AudioParams>({
     text: '',
-    voice: 'bf_emma',
+    voice: 'af_nicole',
     speed: 1.0,
-    pitch: 1.0,
-    volume: 1.0,
-    output_format: 'mp3',
   });
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [generatedAudio, setGeneratedAudio] = useState<string | null>(null);
-  const [selectedLanguage, setSelectedLanguage] = useState<string>('all');
   const [selectedGender, setSelectedGender] = useState<string>('all');
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPlayingSample, setIsPlayingSample] = useState<string | null>(null);
+  const [voiceConfig, setVoiceConfig] = useState<VoiceConfig | null>(null);
+  const [userCredits, setUserCredits] = useState<number>(100);
+  const [error, setError] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const generateButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Filter voices based on selected language and gender
-  const filteredVoices = allVoices.filter(voice => {
-    const languageMatch = selectedLanguage === 'all' || voice.language === selectedLanguage;
+  // 使用模拟用户ID - 在真实应用中应该从认证系统获取
+  const userId = "675fc7c9bfe52d51e82e37d8";
+
+  // 加载语音配置
+  // useEffect(() => {
+  //   const loadVoiceConfig = async () => {
+  //     try {
+  //       const response = await fetch(`/api/gen-voice?userId=${userId}`);
+  //       if (response.ok) {
+  //         const result = await response.json();
+  //         setVoiceConfig(result.data);
+  //         setUserCredits(result.data.userCredits || 0);
+  //       } else {
+  //         console.error('Failed to load voice config');
+  //       }
+  //     } catch (error) {
+  //       console.error('Error loading voice config:', error);
+  //     }
+  //   };
+
+  //   loadVoiceConfig();
+  // }, [userId]);
+
+  // Filter voices based on selected gender
+  const filteredVoices = kokoroVoices.filter(voice => {
     const genderMatch = selectedGender === 'all' || voice.gender === selectedGender;
-    return languageMatch && genderMatch;
+    return genderMatch;
   });
 
-  const selectedVoice = allVoices.find(v => v.id === params.voice) || allVoices[0];
+  const selectedVoice = kokoroVoices.find(v => v.id === params.voice) || kokoroVoices[0];
 
-  useEffect(() => {
-    if (isGenerating) {
-      const interval = setInterval(() => {
-        setProgress((prev) => {
-          const newProgress = prev + 2;
-          if (newProgress >= 100) {
-            clearInterval(interval);
-            setTimeout(() => {
-              setIsGenerating(false);
-              // Mock audio generation
-              setGeneratedAudio('https://www.soundjay.com/misc/sounds/bell-ringing-05.wav');
-            }, 500);
-            return 100;
-          }
-          return newProgress;
-        });
-      }, 100);
-
-      return () => clearInterval(interval);
-    } else {
-      setProgress(0);
-    }
-  }, [isGenerating]);
-
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (isGenerating) return;
 
     if (params.text.trim() === '') {
@@ -138,6 +127,55 @@ export default function AudioPage() {
 
     setIsGenerating(true);
     setProgress(0);
+    setError(null);
+
+    // 开始进度模拟
+    const progressInterval = setInterval(() => {
+      setProgress(prev => {
+        const newProgress = prev + 2;
+        if (newProgress >= 90) {
+          clearInterval(progressInterval);
+          return 90;
+        }
+        return newProgress;
+      });
+    }, 100);
+
+    try {
+      const response = await fetch('/api/gen-voice', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          text: params.text,
+          speed: params.speed,
+          voice: params.voice
+        }),
+      });
+
+      const result = await response.json();
+
+      clearInterval(progressInterval);
+      setProgress(100);
+
+      if (result.success && result.data.audioUrl) {
+        setGeneratedAudio(result.data.audioUrl);
+        setUserCredits(prev => prev - result.data.creditsCost);
+        setTimeout(() => {
+          setIsGenerating(false);
+        }, 500);
+      } else {
+        throw new Error(result.error || 'Failed to generate audio');
+      }
+    } catch (error: any) {
+      clearInterval(progressInterval);
+      setError(error.message);
+      setIsGenerating(false);
+      setProgress(0);
+      console.error('Audio generation error:', error);
+    }
   };
 
   const handlePlayPause = () => {
@@ -152,7 +190,7 @@ export default function AudioPage() {
   };
 
   const handlePlaySample = (voiceId: string) => {
-    // Mock sample play
+    // Mock sample play for now
     setIsPlayingSample(voiceId);
     setTimeout(() => {
       setIsPlayingSample(null);
@@ -161,29 +199,27 @@ export default function AudioPage() {
 
   const downloadAudio = async () => {
     if (!generatedAudio) return;
-    
+
     try {
-      // Fetch the audio file
       const response = await fetch(generatedAudio);
       if (!response.ok) {
         throw new Error('Failed to fetch audio file');
       }
-      
+
       const blob = await response.blob();
       const blobUrl = window.URL.createObjectURL(blob);
-      
-      // Create download link
+
       const a = document.createElement('a');
       a.href = blobUrl;
-      a.download = `speech-${params.voice}-${Date.now()}.${params.output_format}`;
+      const timestamp = new Date().toISOString().slice(0, 19).replace(/[:]/g, '-');
+      const promptSnippet = params.text.slice(0, 30).replace(/[^a-zA-Z0-9]/g, '_');
+      a.download = `kokoro_speech_${promptSnippet}_${timestamp}.wav`;
       a.style.display = 'none';
-      
-      // Add to DOM, click, and remove
+
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      
-      // Clean up the blob URL
+
       window.URL.revokeObjectURL(blobUrl);
     } catch (error) {
       console.error('Error downloading audio:', error);
@@ -191,46 +227,37 @@ export default function AudioPage() {
     }
   };
 
-  const getVoiceDisplayName = (voice: any) => {
-    // Mock translation - in real app this would use t()
-    const names = {
-      'voice.bm_lewis': 'Lewis',
-      'voice.bm_daniel': 'Daniel', 
-      'voice.bm_george': 'George',
-      'voice.bf_emma': 'Emma',
-      'voice.bf_alice': 'Alice',
-      'voice.bf_lily': 'Lily',
-      'voice.jm_kumo': 'Kumo',
-      'voice.jf_tebukuro': 'Tebukuro',
-      'voice.jf_alpha': 'Alpha',
-      'voice.jf_gongitsune': 'Gongitsune',
-      'voice.zm_yunxia': 'Yunxia',
-      'voice.zm_yunxi': 'Yunxi',
-      'voice.zm_yunyang': 'Yunyang',
-      'voice.zf_xiaobei': 'Xiaobei',
-      'voice.zf_xiaoni': 'Xiaoni',
-      'voice.ff_siwis': 'Siwis'
-    };
-    return names[voice.nameKey as keyof typeof names] || voice.id;
-  };
+  // 计算积分消耗
+  const creditsCost = Math.max(1, Math.ceil(params.text.length / 100));
 
   return (
     <div className="min-h-[calc(100vh-120px)]">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-[#F59E0B] to-[#F59E0B]/70 bg-clip-text text-transparent">
+          🎤 {t('audio.title', 'Voice Generation')}
+        </h1>
+        <p className="text-muted-foreground">
+          Convert text to speech using Kokoro AI voice synthesis
+        </p>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Text Input and Parameters */}
         <Card className="col-span-1 lg:col-span-2 p-6 light-theme-card dark:border-white/10 dark:bg-black/20 backdrop-blur-sm">
           <div className="mb-6">
             <label className="block text-sm font-medium mb-2">
-              {t('audio.text', 'Text to Convert')}
+              📝 {t('audio.text', 'Text to Convert')}
             </label>
             <Textarea
               placeholder={t('audio.textPlaceholder', 'Enter the text you want to convert to speech...')}
               value={params.text}
               onChange={(e) => setParams({ ...params, text: e.target.value })}
               className="h-32 bg-background/50 dark:bg-black/20 border-[#F59E0B]/20 dark:border-[#F59E0B]/30 focus-visible:ring-[#F59E0B] focus-visible:border-[#F59E0B]/30"
+              maxLength={5000}
             />
-            <div className="mt-2 text-sm text-muted-foreground">
-              {params.text.length} characters
+            <div className="mt-2 flex justify-between text-sm text-muted-foreground">
+              <span>{params.text.length} / 5000 characters</span>
+              <span>Est. duration: ~{Math.ceil(params.text.length / 15)}s</span>
             </div>
           </div>
 
@@ -238,21 +265,9 @@ export default function AudioPage() {
           <div className="mb-6">
             <div className="flex items-center justify-between mb-3">
               <label className="block text-sm font-medium">
-                {t('audio.selectVoice', 'Select Voice')}
+                🗣️ {t('audio.selectVoice', 'Select Voice')}
               </label>
               <div className="flex gap-2">
-                <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
-                  <SelectTrigger className="w-32 bg-background/50 dark:bg-black/20 border-[#F59E0B]/20 dark:border-[#F59E0B]/30">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Languages</SelectItem>
-                    <SelectItem value="en">English</SelectItem>
-                    <SelectItem value="ja">Japanese</SelectItem>
-                    <SelectItem value="zh">Chinese</SelectItem>
-                    <SelectItem value="fr">French</SelectItem>
-                  </SelectContent>
-                </Select>
                 <Select value={selectedGender} onValueChange={setSelectedGender}>
                   <SelectTrigger className="w-24 bg-background/50 dark:bg-black/20 border-[#F59E0B]/20 dark:border-[#F59E0B]/30">
                     <SelectValue />
@@ -265,7 +280,7 @@ export default function AudioPage() {
                 </Select>
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-64 overflow-y-auto">
               {filteredVoices.map((voice) => (
                 <div
@@ -285,12 +300,10 @@ export default function AudioPage() {
                       </div>
                       <div>
                         <div className="font-medium text-sm flex items-center gap-1">
-                          {getVoiceDisplayName(voice)}
-                          {voice.premium && <Crown className="h-3 w-3 text-[#F59E0B]" />}
+                          {voice.name}
                         </div>
-                        <div className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Globe className="h-3 w-3" />
-                          {languageNames[voice.language as keyof typeof languageNames]}
+                        <div className="text-xs text-muted-foreground">
+                          {voice.description}
                         </div>
                       </div>
                     </div>
@@ -310,83 +323,53 @@ export default function AudioPage() {
                       )}
                     </Button>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1">
-                      <Star className="h-3 w-3 text-[#F59E0B]" />
-                      <span className="text-xs">{voice.rating}</span>
-                    </div>
-                    {voice.premium && (
-                      <Badge variant="secondary" className="text-xs bg-[#F59E0B]/20 text-[#F59E0B]">
-                        Premium
-                      </Badge>
-                    )}
-                  </div>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Audio Parameters */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div>
               <label className="block text-sm font-medium mb-1">
-                {t('audio.speed', 'Speed')} ({params.speed}x)
+                ⚡ {t('audio.speed', 'Speed')} ({params.speed}x)
               </label>
               <Slider
                 value={[params.speed]}
-                min={0.5}
+                min={0.1}
                 max={2.0}
                 step={0.1}
                 onValueChange={(value) => setParams({ ...params, speed: value[0] })}
                 className="py-2"
               />
+              <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                <span>0.1x (Slow)</span>
+                <span>2.0x (Fast)</span>
+              </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                {t('audio.pitch', 'Pitch')} ({params.pitch}x)
-              </label>
-              <Slider
-                value={[params.pitch]}
-                min={0.5}
-                max={2.0}
-                step={0.1}
-                onValueChange={(value) => setParams({ ...params, pitch: value[0] })}
-                className="py-2"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">
-                {t('audio.outputFormat', 'Output Format')}
-              </label>
-              <Select
-                value={params.output_format}
-                onValueChange={(value) => setParams({ ...params, output_format: value })}
-              >
-                <SelectTrigger className="bg-background/50 dark:bg-black/20 border-[#F59E0B]/20 dark:border-[#F59E0B]/30 focus:border-[#F59E0B]/50">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="mp3">MP3</SelectItem>
-                  <SelectItem value="wav">WAV</SelectItem>
-                  <SelectItem value="ogg">OGG</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
           </div>
+
+          {error && (
+            <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-600 text-sm">
+              ❌ {error}
+            </div>
+          )}
 
           <div className="flex justify-between items-center">
             <div className="text-sm text-muted-foreground">
-              {t('audio.credits', 'Credits: ')}
-              <span className="font-medium text-[#F59E0B]">
-                {Math.ceil(params.text.length / 100)}
+              💳 {t('audio.credits', 'Credits: ')}
+              <span className="font-medium text-[#F59E0B] mr-2">
+                {userCredits}
+              </span>
+              <span className="text-xs">
+                (Cost: {creditsCost})
               </span>
             </div>
             <Button
               ref={generateButtonRef}
               onClick={handleGenerate}
-              disabled={params.text.trim() === '' || isGenerating}
+              disabled={params.text.trim() === '' || isGenerating || userCredits < creditsCost}
               className="bg-[#F59E0B] hover:bg-[#F59E0B]/80 text-white relative overflow-hidden"
             >
               {isGenerating && (
@@ -399,7 +382,7 @@ export default function AudioPage() {
                 {isGenerating ? (
                   <>
                     <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                    {t('audio.generating', 'Generating...')}
+                    {t('audio.generating', 'Generating...')} {progress}%
                   </>
                 ) : (
                   <>
@@ -414,7 +397,7 @@ export default function AudioPage() {
 
         {/* Audio Preview */}
         <Card className="col-span-1 p-6 light-theme-card dark:border-white/10 dark:bg-black/20 backdrop-blur-sm flex flex-col">
-          <h2 className="text-xl font-semibold mb-4">{t('audio.preview', 'Audio Preview')}</h2>
+          <h2 className="text-xl font-semibold mb-4">🎧 {t('audio.preview', 'Audio Preview')}</h2>
 
           <div className="flex-grow flex flex-col items-center justify-center">
             {params.text ? (
@@ -433,13 +416,13 @@ export default function AudioPage() {
                         </Button>
                       </div>
                     </div>
-                    
+
                     <div className="text-center">
                       <div className="font-medium text-[#F59E0B] mb-1">
-                        {getVoiceDisplayName(selectedVoice)}
+                        {selectedVoice.name}
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        {languageNames[selectedVoice.language as keyof typeof languageNames]} • {selectedVoice.gender}
+                        Kokoro TTS • {selectedVoice.gender} • {params.speed}x speed
                       </div>
                     </div>
 
@@ -461,6 +444,10 @@ export default function AudioPage() {
                         {t('audio.download', 'Download')}
                       </Button>
                     </div>
+
+                    <div className="text-xs text-muted-foreground text-center">
+                      Voice: {selectedVoice.description}
+                    </div>
                   </div>
                 ) : (
                   <div
@@ -472,7 +459,7 @@ export default function AudioPage() {
                     <Volume2 className="h-12 w-12 text-[#F59E0B]/50 mb-3" />
                     <p className="text-sm text-muted-foreground text-center mb-3">
                       {isGenerating
-                        ? t('audio.creating', 'Creating your audio...')
+                        ? `🔄 ${t('audio.creating', 'Creating your audio...')} ${progress}%`
                         : t('audio.readyToGenerate', 'Ready to generate')}
                     </p>
                     {isGenerating && (
@@ -493,10 +480,22 @@ export default function AudioPage() {
                   {t('audio.enterText', 'Enter text to convert')}
                 </h3>
                 <p className="text-sm text-muted-foreground max-w-xs mx-auto">
-                  {t('audio.textHint', 'Type or paste the text you want to convert to speech')}
+                  {t('audio.textHint', 'Type or paste the text you want to convert to speech using Kokoro AI')}
                 </p>
               </div>
             )}
+          </div>
+
+          {/* Voice Info Panel */}
+          <div className="mt-6 p-4 bg-muted/50 dark:bg-black/30 rounded-lg">
+            <div className="text-sm">
+              <div className="font-medium text-[#F59E0B] mb-2">Current Settings:</div>
+              <div className="space-y-1 text-xs text-muted-foreground">
+                <div>🗣️ Voice: {selectedVoice.name}</div>
+                <div>⚡ Speed: {params.speed}x</div>
+                <div>📏 Length: {params.text.length} chars</div>
+              </div>
+            </div>
           </div>
         </Card>
       </div>
