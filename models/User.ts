@@ -218,4 +218,4 @@ userSchema.statics.findByEmail = function(email: string) {
   return this.findOne({ email: email.toLowerCase() });
 };
 
-export default (mongoose.models.User as IUserModel) || mongoose.model<IUser, IUserModel>('User', userSchema);
+export default mongoose.models.User || mongoose.model<IUser, IUserModel>('User', userSchema);
