@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useSession, signOut } from 'next-auth/react';
 import { cn } from '@/lib/utils';
 import { useTranslation } from '@/hooks/use-translation';
 import { ModeToggle } from './mode-toggle';
@@ -45,39 +46,22 @@ interface NavItem {
   color?: string;
 }
 
-interface UserData {
-  id: string;
-  name: string;
-  email: string;
-  avatar: string;
-  credits: number;
-}
-
 export function Navigation() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { data: session, status } = useSession();
   const { t } = useTranslation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userData, setUserData] = useState<UserData | null>(null);
-
-  // Mock user data
-  const mockUser: UserData = {
-    id: '1',
-    name: 'Alex Chen',
-    email: 'alex.chen@example.com',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-    credits: 1250
-  };
 
   const handleLogin = () => {
-    setIsLoggedIn(true);
-    setUserData(mockUser);
+    router.push('/login');
   };
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setUserData(null);
+  const handleLogout = async () => {
+    await signOut({ 
+      callbackUrl: '/' 
+    });
   };
 
   const navItems: NavItem[] = [
@@ -223,18 +207,20 @@ export function Navigation() {
             <ModeToggle />
             </div>
             
-            {isLoggedIn ? (
+            {status === 'authenticated' && session?.user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <div className="flex items-center gap-3 cursor-pointer transform transition-all duration-300 hover:scale-105">
                     <div className="flex flex-col items-end text-sm">
-                      <span className="font-medium text-foreground">{userData?.name}</span>
-                      <span className="text-xs text-muted-foreground">{userData?.credits} credits</span>
+                      <span className="font-medium text-foreground">{session.user.name}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {session.user.credits ? `${session.user.credits} credits` : 'Loading...'}
+                      </span>
                     </div>
                     <Avatar className="hover:ring-2 hover:ring-[#00F7FF] transition-all">
-                      <AvatarImage src={userData?.avatar} alt={userData?.name} />
+                      <AvatarImage src={session.user.image || ''} alt={session.user.name || ''} />
                       <AvatarFallback className="bg-[#00F7FF]/20 text-[#00F7FF]">
-                        {userData?.name?.split(' ').map(n => n[0]).join('')}
+                        {session.user.name?.split(' ').map(n => n[0]).join('') || session.user.email?.[0].toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                   </div>
@@ -242,8 +228,8 @@ export function Navigation() {
                 <DropdownMenuContent align="end" className="w-56 dark:bg-gray-800/95 dark:border-gray-600/50 dark:backdrop-blur-sm">
                   <DropdownMenuLabel className="dark:text-gray-200">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium">{userData?.name}</p>
-                      <p className="text-xs text-muted-foreground dark:text-gray-400">{userData?.email}</p>
+                      <p className="text-sm font-medium">{session.user.name}</p>
+                      <p className="text-xs text-muted-foreground dark:text-gray-400">{session.user.email}</p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator className="dark:bg-gray-600/50" />
@@ -278,10 +264,11 @@ export function Navigation() {
             ) : (
               <Button 
                 onClick={handleLogin}
+                disabled={status === 'loading'}
                 className="bg-[#00F7FF] hover:bg-[#00F7FF]/80 text-black transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
               >
                 <LogIn className="mr-2 h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
-                {t('nav.login', 'Sign In')}
+                {status === 'loading' ? 'Loading...' : t('nav.login', 'Sign In')}
               </Button>
             )}
         </div>
@@ -382,18 +369,20 @@ export function Navigation() {
                     <LanguageSelector />
                   </div>
                   
-                  {isLoggedIn ? (
+                  {status === 'authenticated' && session?.user ? (
                     <div className="space-y-2">
                       <div className="flex items-center px-3 py-3 rounded-md bg-accent/5">
                         <Avatar className="h-10 w-10 mr-3">
-                          <AvatarImage src={userData?.avatar} alt={userData?.name} />
+                          <AvatarImage src={session.user.image || ''} alt={session.user.name || ''} />
                           <AvatarFallback className="bg-[#00F7FF]/20 text-[#00F7FF]">
-                            {userData?.name?.split(' ').map(n => n[0]).join('')}
+                            {session.user.name?.split(' ').map(n => n[0]).join('') || session.user.email?.[0].toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
-                          <p className="text-sm font-medium">{userData?.name}</p>
-                          <p className="text-xs text-muted-foreground">{userData?.credits} credits</p>
+                          <p className="text-sm font-medium">{session.user.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {session.user.credits ? `${session.user.credits} credits` : 'Loading...'}
+                          </p>
                         </div>
                       </div>
                       <div 
@@ -422,9 +411,11 @@ export function Navigation() {
                         handleLogin();
                         setIsMobileMenuOpen(false);
                       }}
+                      disabled={status === 'loading'}
                       className="w-full bg-[#00F7FF] hover:bg-[#00F7FF]/80 text-black"
                     >
-                      <LogIn className="mr-2 h-4 w-4" /> {t('nav.login', 'Sign In')}
+                      <LogIn className="mr-2 h-4 w-4" /> 
+                      {status === 'loading' ? 'Loading...' : t('nav.login', 'Sign In')}
                     </Button>
                   )}
                 </div>

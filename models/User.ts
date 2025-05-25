@@ -14,6 +14,9 @@ export interface IUser extends Document {
   bio?: string;
   website?: string;
   isEmailVerified: boolean;
+  emailVerified?: Date; // Next-auth compatibility
+  provider?: string; // oauth provider (google, credentials)
+  providerId?: string; // provider user id
   lastLoginAt?: Date;
   preferences: {
     language: string;
@@ -105,6 +108,18 @@ const userSchema = new Schema<IUser>({
   isEmailVerified: {
     type: Boolean,
     default: false
+  },
+  emailVerified: {
+    type: Date,
+    default: null
+  },
+  provider: {
+    type: String,
+    default: null
+  },
+  providerId: {
+    type: String,
+    default: null
   },
   lastLoginAt: {
     type: Date,
