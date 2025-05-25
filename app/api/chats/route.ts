@@ -1,23 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB, Chat } from '@/models';
+import { verifyAuth } from '@/lib/auth-utils';
 
 // GET /api/chats - 获取用户的聊天列表
 export async function GET(request: NextRequest) {
   try {
-    await connectDB();
-
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
-    // 不活跃的
-    const includeArchived = searchParams.get('includeArchived') === 'true';
-
-    if (!userId) {
+    // 验证用户认证
+    const authResult = await verifyAuth(request);
+    if (!authResult.success) {
       return NextResponse.json(
-        { success: false, error: 'User ID is required' },
-        { status: 400 }
+        { success: false, error: authResult.error },
+        { status: authResult.status }
       );
     }
 
+    await connectDB();
+
+    const { searchParams } = new URL(request.url);
+    // 使用认证用户的ID而不是查询参数中的userId
+    const userId = authResult.userId;
+    const includeArchived = searchParams.get('includeArchived') === 'true';
 
     // 构建查询条件
     let filter: any = { userId };
@@ -25,14 +27,11 @@ export async function GET(request: NextRequest) {
       filter.isArchived = false;
     }
 
-
-    const chats = await Chat.find(filter).sort({ lastActivityAt: -1 })
-
+    const chats = await Chat.find(filter).sort({ lastActivityAt: -1 });
 
     return NextResponse.json({
       success: true,
       data: chats
-
     });
   } catch (error) {
     console.error('Get chats error:', error);
@@ -46,17 +45,22 @@ export async function GET(request: NextRequest) {
 // POST /api/chats - 创建新聊天
 export async function POST(request: NextRequest) {
   try {
+    // 验证用户认证
+    const authResult = await verifyAuth(request);
+    if (!authResult.success) {
+      return NextResponse.json(
+        { success: false, error: authResult.error },
+        { status: authResult.status }
+      );
+    }
+
     await connectDB();
 
     const body = await request.json();
-    const { userId, title = 'New Chat', modelName = 'deepseek' } = body;
-
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, error: 'User ID is required' },
-        { status: 400 }
-      );
-    }
+    const { title = 'New Chat', modelName = 'deepseek' } = body;
+    
+    // 使用认证用户的ID
+    const userId = authResult.userId;
 
     // 创建新聊天
     const chat = new Chat({

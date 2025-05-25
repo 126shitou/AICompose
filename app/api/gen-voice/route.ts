@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB, User, Generation } from '@/models';
+import { verifyAuth } from '@/lib/auth-utils';
 
 // 强制动态渲染
 export const dynamic = 'force-dynamic';
@@ -25,6 +26,16 @@ const AVAILABLE_VOICES = [
 
 export async function POST(request: NextRequest) {
     try {
+
+        // 验证用户认证
+        const authResult = await verifyAuth(request);
+        if (!authResult.success) {
+            return NextResponse.json(
+                { success: false, error: authResult.error },
+                { status: authResult.status }
+            );
+        }
+        
         await connectDB();
 
         const body = await request.json();

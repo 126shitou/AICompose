@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectDB, User, Generation } from '@/models';
+import { verifyAuth } from '@/lib/auth-utils';
 
 const REPLICATE_API_TOKEN = process.env.REPLICATE_API_TOKEN;
 
@@ -21,11 +22,19 @@ interface ImageGenParams {
 
 export async function POST(request: NextRequest) {
     try {
+        // 验证用户认证
+        const authResult = await verifyAuth(request);
+        if (!authResult.success) {
+            return NextResponse.json(
+                { success: false, error: authResult.error },
+                { status: authResult.status }
+            );
+        }
+
         await connectDB();
 
         const body = await request.json();
         const {
-            userId,
             prompt,
             aspect_ratio = '1:1',
             num_outputs = 1,
@@ -35,12 +44,15 @@ export async function POST(request: NextRequest) {
             output_quality = 80,
             megapixels = '1',
             go_fast = true
-        }: { userId: string } & ImageGenParams = body;
+        }: ImageGenParams = body;
+
+        // 使用认证用户的ID
+        const userId = authResult.userId;
 
         // 验证必填字段
-        if (!userId || !prompt) {
+        if (!prompt) {
             return NextResponse.json(
-                { success: false, error: 'User ID and prompt are required' },
+                { success: false, error: 'Prompt is required' },
                 { status: 400 }
             );
         }
