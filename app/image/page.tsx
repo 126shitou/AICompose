@@ -92,7 +92,7 @@ export default function ImagePage() {
         });
       }, 500);
 
-      const response = await fetch('/api/image-gen', {
+      const response = await fetch('/api/gen-image', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
