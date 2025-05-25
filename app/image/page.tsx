@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
- import {
+import {
   Download,
   CopyPlus,
   Sparkles,
@@ -32,6 +32,7 @@ interface ImageParams {
   num_outputs: number;
   num_inference_steps: number;
   seed: number;
+  useSeed: boolean;
   output_format: string;
   output_quality: number;
   megapixels: number;
@@ -53,6 +54,7 @@ export default function ImagePage() {
     num_outputs: 1,
     num_inference_steps: 4,
     seed: Math.floor(Math.random() * 1000000),
+    useSeed: false,
     output_format: 'webp',
     output_quality: 90,
     megapixels: 1,
@@ -61,44 +63,15 @@ export default function ImagePage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
-  const [recentSeeds, setRecentSeeds] = useState<number[]>([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
+  const [error, setError] = useState<string>('');
   const generateButtonRef = useRef<HTMLButtonElement>(null);
   const longPressTimer = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    if (isGenerating) {
-      const interval = setInterval(() => {
-        setProgress((prev) => {
-          const newProgress = prev + (100 / params.num_inference_steps / 10);
-          if (newProgress >= 100) {
-            clearInterval(interval);
-            setTimeout(() => {
-              setIsGenerating(false);
-              // Mock image generation with placeholder images
-              const newImages = Array(params.num_outputs).fill(0).map((_, i) =>
-                `https://picsum.photos/seed/${params.seed + i}/${aspectRatioOptions[params.aspect_ratio].width}/${aspectRatioOptions[params.aspect_ratio].height}`
-              );
-              setGeneratedImages(newImages);
-              setRecentSeeds(prev => {
-                const updated = [params.seed, ...prev].slice(0, 10);
-                const uniqueSeeds = Array.from(new Set(updated)) as number[];
-                return uniqueSeeds;
-              });
-            }, 500);
-            return 100;
-          }
-          return newProgress;
-        });
-      }, 100);
+  // Mock user ID - replace with actual user authentication
+  const userId = 'user_123'; // TODO: Get from user context/auth
 
-      return () => clearInterval(interval);
-    } else {
-      setProgress(0);
-    }
-  }, [isGenerating, params.num_inference_steps, params.num_outputs, params.seed, params.aspect_ratio]);
-
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (isGenerating) return;
 
     if (params.prompt.trim() === '') {
@@ -108,6 +81,58 @@ export default function ImagePage() {
 
     setIsGenerating(true);
     setProgress(0);
+    setError('');
+
+    try {
+      // Start progress simulation
+      const progressInterval = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 90) return prev;
+          return prev + Math.random() * 10;
+        });
+      }, 500);
+
+      const response = await fetch('/api/image-gen', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          prompt: params.prompt,
+          aspect_ratio: params.aspect_ratio,
+          num_outputs: params.num_outputs,
+          num_inference_steps: params.num_inference_steps,
+          ...(params.useSeed && { seed: params.seed }),
+          output_format: params.output_format,
+          output_quality: params.output_quality,
+          megapixels: params.megapixels.toString(),
+        }),
+      });
+
+      clearInterval(progressInterval);
+      setProgress(100);
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to generate image');
+      }
+
+      if (result.success && result.data.images) {
+        setGeneratedImages(result.data.images);
+        setSelectedImageIndex(0);
+      } else {
+        throw new Error('No images generated');
+      }
+
+    } catch (error: any) {
+      console.error('Generation error:', error);
+      setError(error.message || 'Failed to generate image');
+      setProgress(0);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleRandomSeed = () => {
@@ -213,25 +238,44 @@ export default function ImagePage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1 flex justify-between">
-                <span>{t('image.seed', 'Seed')}</span>
-                <button
-                  onClick={handleRandomSeed}
-                  className="text-xs text-[#FF2D7C] hover:text-[#FF2D7C]/80 flex items-center"
-                >
-                  <Dice5 className="h-3 w-3 mr-1" />
-                  {t('image.randomize', 'Randomize')}
-                </button>
-              </label>
-              <div className="flex gap-2">
-                <Input
-                  type="number"
-                  value={params.seed}
-                  onChange={(e) => setParams({ ...params, seed: parseInt(e.target.value) || 0 })}
-                  className="bg-background/50 dark:bg-black/20 border-[#FF2D7C]/20 dark:border-[#FF2D7C]/30 focus-visible:ring-[#FF2D7C] focus-visible:border-[#FF2D7C]/30"
-                />
-
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-sm font-medium">
+                  {t('image.seed', 'Seed Control')}
+                </label>
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={params.useSeed}
+                    onChange={(e) => setParams({ ...params, useSeed: e.target.checked })}
+                    className="mr-2 h-4 w-4 text-[#FF2D7C] border-gray-300 rounded focus:ring-[#FF2D7C] focus:ring-2"
+                  />
+                  <span className="text-xs text-muted-foreground">
+                    {t('image.useSeed', 'Use Custom Seed')}
+                  </span>
+                </label>
               </div>
+
+              {params.useSeed && (
+                <div>
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-sm font-medium">{t('image.seedValue', 'Seed Value')}</span>
+                    <button
+                      onClick={handleRandomSeed}
+                      className="text-xs text-[#FF2D7C] hover:text-[#FF2D7C]/80 flex items-center"
+                    >
+                      <Dice5 className="h-3 w-3 mr-1" />
+                      {t('image.randomize', 'Randomize')}
+                    </button>
+                  </div>
+                  <Input
+                    type="number"
+                    value={params.seed}
+                    onChange={(e) => setParams({ ...params, seed: parseInt(e.target.value) || 0 })}
+                    className="bg-background/50 dark:bg-black/20 border-[#FF2D7C]/20 dark:border-[#FF2D7C]/30 focus-visible:ring-[#FF2D7C] focus-visible:border-[#FF2D7C]/30"
+                    placeholder="Enter seed number"
+                  />
+                </div>
+              )}
             </div>
 
             <div>
@@ -266,6 +310,28 @@ export default function ImagePage() {
                 className="py-2"
               />
             </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                {t('image.num_inference_steps', 'Number Inference Steps')}
+              </label>
+              <Select
+                value={params.megapixels.toString()}
+                onValueChange={(value) => setParams({ ...params, megapixels: parseFloat(value) })}
+              >
+                <SelectTrigger className="bg-background/50 dark:bg-black/20 border-[#FF2D7C]/20 dark:border-[#FF2D7C]/30 focus:border-[#FF2D7C]/50">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">1</SelectItem>
+                  <SelectItem value="0.25">0.25</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+
+
+
           </div>
 
           <div className="flex justify-between items-center">
@@ -305,6 +371,14 @@ export default function ImagePage() {
               </span>
             </Button>
           </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+              <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+            </div>
+          )}
+
         </Card>
 
         <Card className="col-span-1 p-6 light-theme-card dark:border-white/10 dark:bg-black/20 backdrop-blur-sm flex flex-col">
@@ -383,7 +457,7 @@ export default function ImagePage() {
                       className="w-full h-16 object-cover"
                     />
                     <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <span className="text-white text-xs font-medium">          
+                      <span className="text-white text-xs font-medium">
                         {selectedImageIndex === index ? '✓' : index + 1}
                       </span>
                     </div>
@@ -393,7 +467,7 @@ export default function ImagePage() {
             </div>
           )}
 
-      
+
         </Card>
       </div>
 

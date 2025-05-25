@@ -120,13 +120,11 @@ const billingAddressSchema = new Schema({
 const orderSchema = new Schema<IOrder>({
   userId: {
     type: String,
-    required: [true, 'User ID is required'],
-    index: true
+    required: [true, 'User ID is required']
   },
   orderNumber: {
     type: String,
     required: [true, 'Order number is required'],
-    unique: true,
     uppercase: true
   },
   type: {
@@ -171,8 +169,7 @@ const orderSchema = new Schema<IOrder>({
     enum: ['stripe', 'paypal', 'wechat', 'alipay']
   },
   paymentId: {
-    type: String,
-    index: true
+    type: String
   },
   paymentIntent: {
     type: String
